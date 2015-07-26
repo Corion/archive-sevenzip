@@ -1,4 +1,4 @@
-package Path::Class::Archive;
+package Archive::SevenZip;
 use strict;
 use Carp qw(croak);
 use Encode qw( decode encode );
@@ -45,11 +45,6 @@ sub find_7z_executable {
     return defined $found ? $found : ()
 }
 
-=head1 NAME
-
-Path::Class::Archive - treat archives as directories
-
-=cut
 
 sub new {
     my( $class, %options);
@@ -57,6 +52,10 @@ sub new {
         ($class, $options{ archivename }) = @_;
     } else {
         ($class, %options) = @_;
+    };
+    
+    if( $options{ find }) {
+        $class->find_7z_executable();
     };
     
     for( keys %class_defaults ) {
@@ -100,6 +99,11 @@ sub open {
 # Archive::Zip API
 sub list {
     my( $self, %options )= @_;
+    
+    if( ! defined ($options{archivename} // $self->{archivename})) {
+        # We are an archive that does not exist on disk yet
+        return
+    };
     my $cmd = $self->get_command( command => "l", options => ["-slt"], %options );
     
     my $fh = $self->run($cmd, encoding => $options{ fs_encoding } );
@@ -136,7 +140,7 @@ sub list {
         if( $line =~ /^([\w ]+) =(?: (.*)|)$/ ) {
             $entry_info{ $1 } = $2;
         } elsif($line =~ /^\s*$/) {
-            push @members, Path::Class::Archive::Entry7zip->new(
+            push @members, Archive::SevenZip::Entry->new(
                 %entry_info,
                 _Container => $self,
             );
@@ -261,7 +265,12 @@ sub run {
     $fh;
 }
 
-package Path::Class::Archive::Entry7zip;
+#my $member = $zip->addDirectory($memberName);
+# ->writeToFileNamed(...)
+# Would that be a file copy instead?
+# Or we simply can't implement this.
+
+package Archive::SevenZip::Entry;
 use strict;
 use Time::Piece; # for strptime
 use File::Basename ();
@@ -324,8 +333,28 @@ sub slurp {
 # Archive::Zip API
 #lastModTime()
 
+package Archive::SevenZip::API::ArchiveZip;
+use strict;
+use Carp qw(croak);
+use Encode qw( decode encode );
+use File::Basename qw(dirname basename);
+
+=head1 NAME
+
+Archive::SevenZip::API::ArchiveZip - Archive::Zip compatibility API
+
+=cut
+
 
 package Path::Class::Archive::Handle;
 use strict;
+
+=head1 NAME
+
+Path::Class::Archive - treat archives as directories
+
+=cut
+
+package Path::Class::Archive;
 
 1;
