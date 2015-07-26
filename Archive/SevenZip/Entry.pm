@@ -3,7 +3,6 @@ use strict;
 use Time::Piece; # for strptime
 use File::Basename ();
 use Path::Class ();
-use Archive::SevenZip;
 
 sub new {
     my( $class, %options) = @_;
