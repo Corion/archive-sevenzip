@@ -132,12 +132,43 @@ sub version {
     }
 }
 
+=head2 C<< $ar->open >>
+
+  my @entries = $ar->open;
+  for my $entry (@entries) {
+      print $entry->name, "\n";
+  };
+
+Lists the entries in the archive. A fresh archive which does not
+exist on disk yet has no entries. The returned entries
+are L<Archive::SevenZip::Entry> instances.
+
+This method will one day move to the Path::Class-compatibility
+API.
+
+=cut
 # Iterate over the entries in the archive
 # Path::Class API
 sub open {
     my( $self )= @_;
     my @contents = $self->list();
 }
+
+=head2 C<< $ar->list >>
+
+  my @entries = $ar->list;
+  for my $entry (@entries) {
+      print $entry->name, "\n";
+  };
+
+Lists the entries in the archive. A fresh archive which does not
+exist on disk yet has no entries. The returned entries
+are L<Archive::SevenZip::Entry> instances.
+
+This method will one day move to the Archive::Zip-compatibility
+API.
+
+=cut
 
 # Archive::Zip API
 sub list {
@@ -197,8 +228,21 @@ sub list {
 }
 *members = \&list;
 
+=head2 C<< $ar->openMemberFH >>
+
+  my $fh = $ar->openMemberFH('test.txt');
+  while( <$fh> ) {
+      print "test.txt: $_";
+  };
+
+Reads the uncompressed content of the member from the archive.
+
+This method will one day move to the Archive::Zip-compatibility
+API.
+
+=cut
+
 sub openMemberFH {
-    
     my( $self, %options );
     if( @_ == 2 ) {
         ($self,$options{ membername })= @_;
@@ -211,6 +255,17 @@ sub openMemberFH {
     my $fh = $self->run($cmd, encoding => $options{ encoding }, binmode => $options{ binmode } );
     return $fh
 }
+
+=head2 C<< $ar->extractMember >>
+
+  $ar->extractMember('test.txt' => 'extracted_test.txt');
+
+Extracts the uncompressed content of the member from the archive.
+
+This method will one day move to the Archive::Zip-compatibility
+API.
+
+=cut
 
 # Archive::Zip API
 sub extractMember {
@@ -323,8 +378,9 @@ use File::Basename qw(dirname basename);
 
 Archive::SevenZip::API::ArchiveZip - Archive::Zip compatibility API
 
-=cut
+Currently has no functionality.
 
+=cut
 
 package Path::Class::Archive::Handle;
 use strict;
@@ -332,6 +388,8 @@ use strict;
 =head1 NAME
 
 Path::Class::Archive - treat archives as directories
+
+Currently has no functionality.
 
 =cut
 
