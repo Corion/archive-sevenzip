@@ -7,6 +7,25 @@ use Archive::SevenZip::Entry;
 
 =head1 NAME
 
+Archive::SevenZip - read 7z , zip , ISO9960 and other archives
+
+=head1 SYNOPSIS
+
+  my $ar = Archive::SevenZip->new(
+      find => 1,
+      archivename => $archivename,
+      verbose => $verbose,
+  );
+
+  for my $entry ( $ar->list ) {
+      my $target = join "/", "$target_dir", $entry->basename;
+      $ar->extractMember( $entry->fileName, $target );
+  };
+
+=head1 METHODS
+
+=cut
+
 use vars qw(%sevenzip_charsetname %class_defaults $VERSION);
 $VERSION= '0.01';
 
@@ -22,6 +41,15 @@ $VERSION= '0.01';
     fs_encoding => 'UTF-8',
     default_options => [ "-y", "-bd" ],
 );
+
+=head2 C<< Archive::SevenZip->find_7z_executable >>
+
+Finds the 7z executable in the path or in C<< $ENV{ProgramFiles} >>
+or C<< $ENV{ProgramFiles(x86)} >>. This is called
+when a C<< Archive::SevenZip >> instance is created with the C<find>
+parameter set to 1.
+
+=cut
 
 sub find_7z_executable {
     my($class) = @_;
@@ -46,6 +74,20 @@ sub find_7z_executable {
     return defined $found ? $found : ()
 }
 
+=head2 C<< Archive::SevenZip->new >>
+
+  my $ar = Archive::SevenZip->new( $archivename );
+
+  my $ar = Archive::SevenZip->new(
+      archivename => $archivename,
+      find => 1,
+  );
+
+Creates a new class instance.
+
+C<find> - will search C<$ENV{PATH}>, 
+
+=cut
 
 sub new {
     my( $class, %options);
