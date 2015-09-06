@@ -5,8 +5,7 @@ use Encode qw( decode encode );
 use File::Basename qw(dirname basename);
 use Archive::SevenZip::Entry;
 
-# Consider automatically trying $ENV{ProgramFiles} and $ENV{ProgramFiles(x86)}
-# for finding 7-zip
+=head1 NAME
 
 use vars qw(%sevenzip_charsetname %class_defaults $VERSION);
 $VERSION= '0.01';
@@ -27,9 +26,10 @@ $VERSION= '0.01';
 sub find_7z_executable {
     my($class) = @_;
     my $old_default = $class_defaults{ '7zip' };
-    my @search;
+    my $envsep = $^O =~ /MSWin/ ? ';' : ':';
+    my @search = split /$envsep/, $ENV{PATH};
     if( $^O =~ /MSWin/i ) {
-        @search = map { "$_\\7-Zip" } ($ENV{'ProgramFiles'}, $ENV{'ProgramFiles(x86)'});
+        push @search = map { "$_\\7-Zip" } ($ENV{'ProgramFiles'}, $ENV{'ProgramFiles(x86)'});
     };
     my $found = $class->version;
     
