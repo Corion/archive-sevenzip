@@ -296,3 +296,42 @@ Path::Class::Archive - treat archives as directories
 package Path::Class::Archive;
 
 1;
+
+__END__
+
+=head1 CAUTION
+
+This module tries to mimic the API of L<Archive::Zip> in some cases
+and in other cases, the API of L<Path::Class>. It is also a very rough
+draft that just happens to be doing what I need, mostly extracting
+files.
+
+=head1 REPOSITORY
+
+The public repository of this module is 
+L<http://github.com/Corion/archive-sevenzip>.
+
+=head1 SUPPORT
+
+The public support forum of this module is
+L<https://perlmonks.org/>.
+
+=head1 BUG TRACKER
+
+Please report bugs in this module via the RT CPAN bug queue at
+L<https://rt.cpan.org/Public/Dist/Display.html?Name=HTML-Rebase>
+or via mail to L<archive-sevenzip-Bugs@rt.cpan.org>.
+
+=head1 AUTHOR
+
+Max Maischein C<corion@cpan.org>
+
+=head1 COPYRIGHT (c)
+
+Copyright 2015 by Max Maischein C<corion@cpan.org>.
+
+=head1 LICENSE
+
+This module is released under the same terms as Perl itself.
+
+=cut
