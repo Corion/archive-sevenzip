@@ -4,6 +4,9 @@ use Carp qw(croak);
 use Encode qw( decode encode );
 use File::Basename qw(dirname basename);
 use Archive::SevenZip::Entry;
+use File::Temp 'tempfile';
+use File::Copy;
+use IPC::Run;
 
 =head1 NAME
 
@@ -40,6 +43,7 @@ $VERSION= '0.01';
     '7zip' => '7z',
     fs_encoding => 'UTF-8',
     default_options => [ "-y", "-bd" ],
+    type => 'zip',
 );
 
 =head2 C<< Archive::SevenZip->find_7z_executable >>
@@ -256,6 +260,12 @@ sub openMemberFH {
     return $fh
 }
 
+sub content {
+    my( $self, %options ) = @_;
+    my $fh = $self->openMemberFH( %options );
+    local $/;
+    <$fh>
+}
 =head2 C<< $ar->extractMember >>
 
   $ar->extractMember('test.txt' => 'extracted_test.txt');
@@ -332,17 +342,34 @@ sub run {
     my( $self, $cmd, %options )= @_;
     
     my $mode = '-|';
+    if( defined $options{ stdin }) {
+        $mode = '|-';
+    };
 
     my $fh;
     if( $^O =~ /MSWin/i ) {
         #warn "Opening [@$cmd |]";
         my @cmd = @$cmd;
-        #my @cmd = map { /\s/ ? qq{"$_"} : $_ } @$cmd;
-        CORE::open( $fh, "@cmd 2>nul: |" )
+        
+        my $str;
+        my $redirect_stderr = '2>nul:';
+        if( $self->{verbose} ) {
+            $redirect_stderr = '';
+        };
+        
+        if( '|-' eq $mode ) {
+            $str = "| @cmd $redirect_stderr"
+        } else {
+            $str = "@cmd $redirect_stderr |"
+        };
+
+        #warn "Opening [$str]";
+        
+        # Yees, list-open for Win32 is in 5.24, but I want to use it
+        # elsewhere too. So, no list-open for you!
+        CORE::open( $fh, $str )
             or croak "Couldn't launch [$mode @cmd]: $!/$?";
     } else {
-        # We can't conveniently silence 7zip here as we want to keep
-        # the list-open :-/
         CORE::open( $fh, $mode, @$cmd)
             or croak "Couldn't launch [$mode @$cmd]: $!/$?";
     };
@@ -352,7 +379,10 @@ sub run {
         binmode $fh, $options{ binmode };
     };
     
-    if( $options{ skip }) {
+    if( $options{ stdin }) {
+        print {$fh} $options{ stdin };
+        close $fh;
+    } elsif( $options{ skip }) {
         for( 1..$options{ skip }) {
             # Read that many lines
             local $/ = "\n";
@@ -363,24 +393,95 @@ sub run {
     $fh;
 }
 
-#my $member = $zip->addDirectory($memberName);
-# ->writeToFileNamed(...)
-# Would that be a file copy instead?
-# Or we simply can't implement this.
+sub archive_or_temp {
+    my( $self ) = @_;
+    if( ! defined $self->{archivename} ) {
+        $self->{is_tempfile} = 1;
+        (my( $fh ),$self->{archivename}) = tempfile( ); # SUFFIX => ".$self->{type}", 
+        close $fh;
+    };
+    $self->{archivename}
+};
+
+sub add_scalar {
+    my( $self, $name, $scalar )= @_;
+    
+    # Only supports 7z archive type?!
+    my $cmd = $self->get_command(
+        command => 'a',
+        archivename => $self->archive_or_temp,
+        options => [sprintf( '-si%s', $name ), "-t7z" ],
+    );
+    my $fh = $self->run( $cmd,
+        binmode => ':raw',
+        stdin => $scalar,
+    );
+};
+
+
+sub add {
+    my( $self, %options )= @_;
+    
+    my @items = @{ delete $options{ items } || [] };
+    for my $item (@items) {
+        if( ! ref $item ) {
+            $item = [ $item, $item ];
+        };
+        my( $name, $storedName ) = @$item;
+
+        if( $name ne $storedName ) {
+            # We need to pipe to 7zip from stdin
+        } else {
+            # 7zip can read the file from disk
+            # Write the name to a tempfile to be read by 7zip for batching
+        };
+        my $fh = $self->run( command => 'a',
+        );
+    };
+};
 
 package Archive::SevenZip::API::ArchiveZip;
 use strict;
 use Carp qw(croak);
 use Encode qw( decode encode );
 use File::Basename qw(dirname basename);
+use File::Copy;
+
+sub new {
+    my( $class, %options )= @_;
+    $options{ sevenZip } = Archive::SevenZip->new();
+    bless \%options => $class;
+};
+
+sub sevenZip { $_[0]->{sevenZip} }
 
 =head1 NAME
 
 Archive::SevenZip::API::ArchiveZip - Archive::Zip compatibility API
 
-Currently has no functionality.
-
 =cut
+
+sub writeToFileNamed {
+    my( $self, $targetName )= @_;
+    copy( $self->sevenZip->{archivename}, $targetName );
+}
+
+sub addFileOrDirectory {
+    my($self, $name, $newName, $compressionLevel) = @_;
+    $newName //= $name;
+    $self->sevenZip->add(
+        items => [ [$name, $newName] ],
+        compression => $compressionLevel
+    );
+}
+
+sub addString {
+}
+
+#my $member = $zip->addDirectory($memberName);
+sub addDirectory {
+    # Create just a directory name
+}
 
 package Path::Class::Archive::Handle;
 use strict;
@@ -388,8 +489,6 @@ use strict;
 =head1 NAME
 
 Path::Class::Archive - treat archives as directories
-
-Currently has no functionality.
 
 =cut
 
