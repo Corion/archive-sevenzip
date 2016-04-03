@@ -39,7 +39,7 @@ $VERSION= '0.01';
 use constant AZ_OK           => 0;
 
 use constant COMPRESSION_STORED        => 'Store';   # file is stored (no compression)
-use constant COMPRESSION_DEFLATED      => 8;   # file is Deflated
+use constant COMPRESSION_DEFLATED      => 'Deflate';   # file is Deflated
 
 @EXPORT_OK = (qw(AZ_OK COMPRESSION_STORED COMPRESSION_DEFLATED));
 %EXPORT_TAGS = (
