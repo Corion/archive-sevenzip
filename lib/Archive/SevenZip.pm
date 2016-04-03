@@ -323,14 +323,14 @@ sub extractMember {
         members     => [ $memberOrName ],
         options     => [ "-o$target_dir" ],
     );
-    my $fh = $self->run($cmd, encoding => $options{ encoding } );
+    my $fh = $self->run($cmd, encoding => $options{ encoding }, verbose => 1 );
     
     while( <$fh>) {
-        warn $_ if $self->{verbose};
+        warn $_ if $options{ verbose };
     };
     if( basename $memberOrName ne $target_name ) {
         rename "$target_dir/" . basename($memberOrName) => $extractedName
-            or croak "Couldn't move '$memberOrName' to '$extractedName': $?";
+            or croak "Couldn't move '$memberOrName' to '$extractedName': $!";
     };
     
     return AZ_OK;
