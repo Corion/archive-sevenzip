@@ -297,7 +297,7 @@ sub openMemberFH {
     defined $options{ membername } or croak "Need member name to extract";
     
     my $cmd = $self->get_command( command => "e", options => ["-so"], members => [$options{membername}] );
-    my $fh = $self->run($cmd, encoding => $options{ encoding }, binmode => $options{ binmode } );
+    my $fh = $self->run($cmd, encoding => $options{ encoding }, binmode => $options{ binmode });
     return $fh
 }
 

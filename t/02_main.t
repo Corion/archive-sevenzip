@@ -54,6 +54,12 @@ if( ! $version ) {
     BAIL_OUT "7z binary not found (not installed?)";
 };
 diag "7-zip version $version";
+if( $version <= 9.20) {
+  SKIP: {
+    skip "7z version $version does not support renaming", 65;
+  }
+    exit
+};
 
 #--------- empty file
 # new	# Archive::Zip
