@@ -19,7 +19,19 @@ sub archive {
 }
 
 sub fileName {
-    $_[0]->{Path}
+    my( $self ) = @_;
+    
+    my $res = $self->{Path};
+    
+    # Normalize to unixy path names
+    $res =~ s!\\!/!g;
+    
+    # If we're a directory, append the slash:
+    if( $self->{Folder} eq '+') {
+        $res .= '/';
+    };
+    
+    $res
 }
 
 # Class::Path API
