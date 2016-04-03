@@ -518,7 +518,7 @@ L<https://perlmonks.org/>.
 =head1 BUG TRACKER
 
 Please report bugs in this module via the RT CPAN bug queue at
-L<https://rt.cpan.org/Public/Dist/Display.html?Name=HTML-Rebase>
+L<https://rt.cpan.org/Public/Dist/Display.html?Name=Archive-SevenZip>
 or via mail to L<archive-sevenzip-Bugs@rt.cpan.org>.
 
 =head1 AUTHOR
@@ -527,7 +527,7 @@ Max Maischein C<corion@cpan.org>
 
 =head1 COPYRIGHT (c)
 
-Copyright 2015 by Max Maischein C<corion@cpan.org>.
+Copyright 2015-2016 by Max Maischein C<corion@cpan.org>.
 
 =head1 LICENSE
 
