@@ -46,7 +46,7 @@ WriteMakefile1(
 
         'File::Temp' => 0,
         'File::Copy' => 0,
-        'IPC::Run' => 0,
+        'IPC::Open3' => 0, # for talking to 7zip
         'Path::Class' => 0,
         'Encode'      => 0,
         'File::Basename' => 0,

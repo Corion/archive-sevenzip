@@ -6,9 +6,10 @@ use File::Basename qw(dirname basename);
 use Archive::SevenZip::Entry;
 use File::Temp qw(tempfile tempdir);
 use File::Copy;
-use IPC::Run;
+use IPC::Open3 'open3';
 use Path::Class;
 use Exporter 'import'; # for the error codes, in Archive::Zip API compatibility
+
 
 =head1 NAME
 
@@ -225,24 +226,26 @@ sub list {
     
     my $fh = $self->run($cmd, encoding => $options{ fs_encoding } );
     my @output = <$fh>;
-    chomp @output;
-
     my %results = (
         header => [],
         archive => [],
     );
     
     # Get/skip header
-    while( @output and $output[0] !~ /^--$/ ) {
-        push @{ $results{ header }}, shift @output;
+    while( @output and $output[0] !~ /^--\s*$/ ) {
+        my $line = shift @output;
+        $line =~ s!\s+$!!;
+        push @{ $results{ header }}, $line;
     };
     
     # Get/skip archive information
-    while( @output and $output[0] !~ /^----------$/ ) {
-        push @{ $results{ archive }}, shift @output;
+    while( @output and $output[0] !~ /^----------\s*$/ ) {
+        my $line = shift @output;
+        $line =~ s!\s+$!!;
+        push @{ $results{ archive }}, $line;
     };
     
-    if( $output[0] =~ /^----------$/ ) {
+    if( $output[0] =~ /^----------\s*$/ ) {
         shift @output;
     } else {
         warn "Unexpected line in 7zip output, hope that's OK: [$output[0]]";
@@ -254,7 +257,7 @@ sub list {
     my %entry_info;
     while( @output ) {
         my $line = shift @output;
-        if( $line =~ /^([\w ]+) =(?: (.*)|)$/ ) {
+        if( $line =~ /^([\w ]+) =(?: (.*?)|)\s*$/ ) {
             $entry_info{ $1 } = $2;
         } elsif($line =~ /^\s*$/) {
             push @members, Archive::SevenZip::Entry->new(
@@ -426,47 +429,25 @@ sub run {
     };
 
     my $fh;
-    if( $^O =~ /MSWin/i ) {
-        #warn "Opening [@$cmd |]";
-        my @cmd = @$cmd;
-        
-        my $str;
-        my $redirect_stderr = '2>nul:';
-        if( $self->{verbose} ) {
-            $redirect_stderr = '';
-        };
-        
-        if( '|-' eq $mode ) {
-            $str = "| @cmd $redirect_stderr"
-        } else {
-            $str = "@cmd $redirect_stderr |"
-        };
+    warn "Opening [@$cmd]"
+        if $options{ verbose };
 
-        # Yees, list-open for Win32 is in 5.24, but I want to use it
-        # elsewhere too. So, no list-open for you!
-        CORE::open( $fh, $str )
-            or croak "Couldn't launch [$mode @cmd]: $!/$?";
+    if( $self->{verbose} ) {
+        CORE::open( $fh, $mode, @$cmd)
+            or croak "Couldn't launch [$mode @$cmd]: $!/$?";
     } else {
-        warn "Opening [@$cmd]"
-            if $options{ verbose };
-
-        require IPC::Open3;
-        if( $self->{verbose} ) {
-            CORE::open( $fh, $mode, @$cmd)
-                or croak "Couldn't launch [$mode @$cmd]: $!/$?";
+        CORE::open( my $fh_err, '>', File::Spec->devnull )
+            or warn "Couldn't redirect child STDERR";
+        my $errh = fileno $fh_err;
+        # We accumulate zombie PIDs here, ah well.
+        my $pid = open3( my $fh_in, my $fh_out, '>&' . $errh, @$cmd)
+            or croak "Couldn't launch [$mode @$cmd]: $!/$?";
+        if( $mode eq '|-' ) {
+            $fh = $fh_in;
         } else {
-            CORE::open( my $fh_err, '>', '/dev/null' ) or warn "Couldn't redirect child STDERR";
-            my $errh = fileno $fh_err;
-            # We accumulate zombie PIDs here, ah well.
-            my $pid = IPC::Open3::open3( my $fh_in, my $fh_out, '>&' . $errh, @$cmd)
-                or croak "Couldn't launch [$mode @$cmd]: $!/$?";
-            if( $mode eq '|-' ) {
-                $fh = $fh_in;
-            } else {
-                $fh = $fh_out
-            };
-        }
-    };
+            $fh = $fh_out
+        };
+    }
     if( $options{ encoding }) {
         binmode $fh, ":encoding($options{ encoding })";
     } elsif( $options{ binmode } ) {
