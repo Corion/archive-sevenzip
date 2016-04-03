@@ -36,10 +36,14 @@ WriteMakefile1(
 
     PL_FILES            => {},
     BUILD_REQUIRES => {
-        'Test::More' => 0,
+        'ExtUtils::MakeMaker' => 0,
     },
 
     PREREQ_PM => {
+        'Test::More' => 0,
+        'File::Spec' => 0, # some tests do, at least
+        'Exporter'   => 5, # for 'import'
+
         'File::Temp' => 0,
         'File::Copy' => 0,
         'IPC::Run' => 0,
