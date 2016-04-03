@@ -44,6 +44,10 @@ sub components {
     $cp->components()
 }
 
+sub lastModFileDateTime {
+    0
+}
+
 sub dir {
     # We need to return the appropriate class here
     # so that further calls to (like) dir->list
