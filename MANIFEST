@@ -1,0 +1,13 @@
+.gitignore
+lib/Archive/SevenZip.pm
+lib/Archive/SevenZip/Entry.pm
+Makefile.PL
+MANIFEST			This list of files
+MANIFEST.SKIP
+xt/99-changes.t
+xt/99-compile.t
+xt/99-manifest.t
+xt/99-pod.t
+xt/99-todo.t
+xt/99-unix-text.t
+xt/99-versions.t
