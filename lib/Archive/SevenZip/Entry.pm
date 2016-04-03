@@ -1,8 +1,12 @@
 package Archive::SevenZip::Entry;
 use strict;
+
 use Time::Piece; # for strptime
 use File::Basename ();
 use Path::Class ();
+
+use vars qw($VERSION);
+$VERSION= '0.01';
 
 sub new {
     my( $class, %options) = @_;
