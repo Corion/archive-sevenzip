@@ -48,6 +48,14 @@ sub lastModFileDateTime {
     0
 }
 
+sub crc32 {
+    hex( $_[0]->{CRC} );
+}
+
+sub crc32String {
+    lc $_[0]->{CRC};
+}
+
 sub dir {
     # We need to return the appropriate class here
     # so that further calls to (like) dir->list
