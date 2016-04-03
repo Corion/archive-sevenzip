@@ -43,7 +43,9 @@ sub open {
     my( $self, $mode, $permissions )= @_;
     $self->archive->openMemberFH( membername => $self->fileName, binmode => $mode );
 }
+{ no warnings 'once';
 *fh = \&open; # Archive::Zip API
+}
 
 # Path::Class API
 sub slurp {

@@ -230,7 +230,9 @@ sub list {
     
     return @members
 }
+{ no warnings 'once';
 *members = \&list;
+}
 
 =head2 C<< $ar->openMemberFH >>
 
