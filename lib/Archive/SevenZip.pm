@@ -344,7 +344,7 @@ Removes the member from the archive.
 
 =cut
 
-# strikingly Archive::Zip API
+# strikingly similar to Archive::Zip API
 sub removeMember {
     my( $self, $name, %_options ) = @_;
 

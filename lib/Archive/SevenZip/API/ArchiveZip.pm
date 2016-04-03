@@ -118,6 +118,35 @@ sub removeMember {
     $res
 }
 
+=head2 C<< $ar->replaceMember >>
+
+  $ar->replaceMember('backup.txt', 'new-backup.txt');
+
+Replaces the member in the archive. This is just delete then add.
+
+I clearly don't understand the utility of this method. It clearly
+does not update the content of one file with the content of another
+file, as the name of the new file can be different.
+
+=cut
+
+# strikingly similar to Archive::Zip API
+sub replaceMember {
+    my( $self, $name, $replacement, %_options ) = @_;
+
+    my %options = %$self, %_options;
+    
+    if( $^O =~ /MSWin/ ) {
+        $name =~ s!/!\\!g;
+    }
+    
+    my $res = $self->removeMember( $name );
+    $self->add( $replacement );
+    
+    $res
+};
+
+
 sub addFile {
     my( $self, $name, $target, %options ) = @_;
     if( ref $name and $name->can('fileName')) {
