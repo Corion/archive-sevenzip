@@ -166,7 +166,9 @@ sub addMember {
     $self->sevenZip->add( items => [[ $name, $target ]], %options );
     return $self->memberNamed($target, %options);
 }
+{ no warnings 'once';
 *add = \&addMember;
+}
 
 sub addTree {
     my( $self, $sourceDir, $target, $predicate, %options ) = @_;
