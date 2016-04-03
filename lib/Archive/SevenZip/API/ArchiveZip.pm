@@ -166,6 +166,7 @@ sub addMember {
     $self->sevenZip->add( items => [[ $name, $target ]], %options );
     return $self->memberNamed($target, %options);
 }
+*add = \&addMember;
 
 __END__
 
