@@ -134,7 +134,7 @@ file, as the name of the new file can be different.
 sub replaceMember {
     my( $self, $name, $replacement, %_options ) = @_;
 
-    my %options = %$self, %_options;
+    my %options = (%$self, %_options);
     
     if( $^O =~ /MSWin/ ) {
         $name =~ s!/!\\!g;
@@ -164,6 +164,21 @@ sub addMember {
     };
     $target ||= $name;
     $self->sevenZip->add( items => [[ $name, $target ]], %options );
+    return $self->memberNamed($target, %options);
+}
+*add = \&addMember;
+
+sub addTree {
+    my( $self, $sourceDir, $target, $predicate, %options ) = @_;
+    
+    croak "Predicates are not supported, sorry"
+        if $predicate;
+        
+    $target ||= $sourceDir;
+    croak "Different target for ->addTree not supported, sorry"
+        if $target ne $sourceDir;
+        
+    $self->sevenZip->add( items => [[ $sourceDir, $target ]], recursive => 1, %options );
     return $self->memberNamed($target, %options);
 }
 *add = \&addMember;

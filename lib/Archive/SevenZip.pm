@@ -348,7 +348,7 @@ Removes the member from the archive.
 sub removeMember {
     my( $self, $name, %_options ) = @_;
 
-    my %options = %$self, %_options;
+    my %options = (%$self, %_options);
     
     if( $^O =~ /MSWin/ ) {
         $name =~ s!/!\\!g;
@@ -621,14 +621,19 @@ sub add {
         binmode $fh, ':raw';
         print {$fh} join "\r\n", @filelist;
         close $fh;
+        
+        my @options;
+        if( $options{ recursive }) {
+            push @options, '-r';
+        };
 
         my $cmd = $self->get_command(
             command => 'a',
             archivename => $self->archive_or_temp,
             members => ['@'.$name],
-            #options =>  ],
+            options =>  \@options
         );
-        my $fh = $self->run( $cmd );
+        $fh = $self->run( $cmd );
         $self->wait($fh, %options);
     };
 };
