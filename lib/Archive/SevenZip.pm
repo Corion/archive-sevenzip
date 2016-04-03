@@ -31,14 +31,31 @@ Archive::SevenZip - Read/write 7z , zip , ISO9960 and other archives
 
 =cut
 
-use vars qw(%sevenzip_charsetname %class_defaults $VERSION @EXPORT_OK);
+use vars qw(%sevenzip_charsetname %class_defaults $VERSION @EXPORT_OK %EXPORT_TAGS);
 $VERSION= '0.01';
 
 # Archive::Zip API
 # Error codes
 use constant AZ_OK           => 0;
 
-@EXPORT_OK = (qw(AZ_OK));
+use constant COMPRESSION_STORED        => 0;   # file is stored (no compression)
+use constant COMPRESSION_DEFLATED      => 8;   # file is Deflated
+
+@EXPORT_OK = (qw(AZ_OK COMPRESSION_STORED COMPRESSION_DEFLATED));
+%EXPORT_TAGS = (
+        ERROR_CODES => [
+            qw(
+              AZ_OK
+              )
+              #AZ_STREAM_END
+              #AZ_ERROR
+              #AZ_FORMAT_ERROR
+              #AZ_IO_ERROR
+        ],
+        CONSTANTS => [
+             qw(COMPRESSION_STORED COMPRESSION_DEFLATED)
+        ],
+);
 
 %sevenzip_charsetname = (
     'UTF-8' => 'UTF-8',
@@ -242,7 +259,6 @@ sub list {
 { no warnings 'once';
 *members = \&list;
 }
-
 
 =head2 C<< $ar->openMemberFH >>
 
@@ -497,6 +513,11 @@ sub add {
     };
 };
 
+sub archiveZipApi {
+    my( $class, %options ) = @_;
+    Archive::SevenZip::API::ArchiveZip->new( %options )
+}
+
 package Archive::SevenZip::API::ArchiveZip;
 use strict;
 use Carp qw(croak);
@@ -533,11 +554,30 @@ sub addFileOrDirectory {
 }
 
 sub addString {
+    my( $self, $name, $content ) = @_;
+    $self->sevenZip->add_scalar($name => $content);
 }
 
 #my $member = $zip->addDirectory($memberName);
 sub addDirectory {
     # Create just a directory name
+}
+
+sub members {
+    my( $self ) = @_;
+    $self->sevenZip->members;
+}
+
+=head2 C<< $ar->numberOfMembers >>
+
+  my $count = $az->numberOfMembers();
+
+=cut
+
+sub numberOfMembers {
+    my( $self, %options ) = @_;
+    my @m = $self->members( %options );
+    0+@m
 }
 
 package Path::Class::Archive::Handle;
