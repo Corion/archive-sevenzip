@@ -89,8 +89,8 @@ sub find_7z_executable {
         push @search, map { "$_\\7-Zip" } ($ENV{'ProgramFiles'}, $ENV{'ProgramFiles(x86)'});
     };
     my $found = $class->version;
-    
-    while( ! $found and @search) {
+
+    while( ! defined $found and @search) {
         my $dir = shift @search;
         $class_defaults{'7zip'} = "" . file("$dir", "7z" );
         $found = $class->version;
@@ -144,12 +144,16 @@ sub version {
     };
     my $self = ref $self_or_class ? $self_or_class : $self_or_class->new( %options );
     
-    
     my $cmd = $self->get_command(
         command => '',
         archivename => undef,
+        options => [], # on Debian, 7z doesn't like any options...
+        fs_encoding => undef, # on Debian, 7z doesn't like any options...
+        default_options => [], # on Debian, 7z doesn't like any options...
     );
-    my $fh = $self->run($cmd, binmode => ':raw');
+    my $fh = eval { $self->run($cmd, binmode => ':raw') };
+
+    if( ! $@ ) {
     local $/ = "\n";
     my @output = <$fh>;
     if( @output >= 3) {
@@ -158,6 +162,7 @@ sub version {
         return $1;
     } else {
         return undef
+    }
     }
 }
 
@@ -323,7 +328,7 @@ sub extractMember {
         members     => [ $memberOrName ],
         options     => [ "-o$target_dir" ],
     );
-    my $fh = $self->run($cmd, encoding => $options{ encoding }, verbose => 1 );
+    my $fh = $self->run($cmd, encoding => $options{ encoding });
     
     while( <$fh>) {
         warn $_ if $options{ verbose };
