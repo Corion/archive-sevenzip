@@ -67,6 +67,12 @@ sub slurp {
 # Archive::Zip API
 #lastModTime()
 
+# Archive::Zip API
+sub extractToFileNamed {
+    my($self, $target) = @_;
+    $self->archive->extractMember( $self->fileName, $target );
+};
+
 1;
 
 =head1 REPOSITORY
