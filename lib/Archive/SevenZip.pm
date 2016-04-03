@@ -366,9 +366,6 @@ sub run {
             $str = "@cmd $redirect_stderr |"
         };
 
-        warn "Opening [$str]"
-            if $options{ verbose };
-        
         # Yees, list-open for Win32 is in 5.24, but I want to use it
         # elsewhere too. So, no list-open for you!
         CORE::open( $fh, $str )
@@ -403,25 +400,69 @@ sub archive_or_temp {
     my( $self ) = @_;
     if( ! defined $self->{archivename} ) {
         $self->{is_tempfile} = 1;
-        (my( $fh ),$self->{archivename}) = tempfile( ); # SUFFIX => ".$self->{type}", 
+        (my( $fh ),$self->{archivename}) = tempfile( SUFFIX => ".$self->{type}" );
         close $fh;
+        unlink $self->{archivename};
     };
     $self->{archivename}
 };
 
+sub wait {
+    my( $self, $fh ) = @_;
+    while( <$fh>) {};
+}
+
+=head2 C<< ->add_scalar >>
+
+    $ar->add_scalar( "Some name.txt", "This is the content" );
+
+Adds a scalar as an archive member.
+
+Unfortunately, 7zip doesn't reliably read archive members from STDIN,
+so the scalar will be written to a tempfile, added to the archive and then
+renamed in the archive.
+
+This requires 7zip version 9.30+
+
+=cut
+
 sub add_scalar {
     my( $self, $name, $scalar )= @_;
     
+    # 7zip doesn't really support reading archive members from STDIN :-(
+    my($fh, $tempname) = tempfile;
+    binmode $fh, ':raw';
+    print {$fh} $scalar;
+    close $fh;
+    
     # Only supports 7z archive type?!
+    # 7zip will magically append .7z to the filename :-(
     my $cmd = $self->get_command(
         command => 'a',
         archivename => $self->archive_or_temp,
-        options => [sprintf( '-si%s', $name ), "-t7z" ],
+        members => [$tempname],
+        #options =>  ],
     );
-    my $fh = $self->run( $cmd,
-        binmode => ':raw',
-        stdin => $scalar,
+    $fh = $self->run( $cmd );
+    $self->wait($fh);
+    
+    # Hopefully your version of 7zip can rename members (9.30+):
+    $cmd = $self->get_command(
+        command => 'rn',
+        archivename => $self->archive_or_temp,
+        members => [basename($tempname), $name],
+        #options =>  ],
     );
+    warn "@$cmd";
+    $fh = $self->run( $cmd );
+    $self->wait($fh);
+    
+    # Once 7zip supports reading from stdin, this will work again:
+    #my $fh = $self->run( $cmd,
+    #    binmode => ':raw',
+    #    stdin => $scalar,
+    #    verbose => 1,
+    #);
 };
 
 
