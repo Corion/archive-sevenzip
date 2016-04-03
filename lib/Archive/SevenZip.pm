@@ -336,6 +336,35 @@ sub extractMember {
     return AZ_OK;
 };
 
+=head2 C<< $ar->removeMember >>
+
+  $ar->removeMember('test.txt');
+
+Removes the member from the archive.
+
+=cut
+
+# strikingly Archive::Zip API
+sub removeMember {
+    my( $self, $name, %_options ) = @_;
+
+    my %options = %$self, %_options;
+    
+    if( $^O =~ /MSWin/ ) {
+        $name =~ s!/!\\!g;
+    }
+    
+    my $cmd = $self->get_command(
+        command     => "d",
+        archivename => $options{ archivename }, 
+        members     => [ $name ],
+    );
+    my $fh = $self->run($cmd, encoding => $options{ encoding } );
+    $self->wait($fh, %options);
+    
+    return AZ_OK;
+};
+
 sub add_quotes {
     map {
         defined $_ && /\s/ ? qq{"$_"} : $_
