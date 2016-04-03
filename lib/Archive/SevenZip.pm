@@ -4,7 +4,7 @@ use Carp qw(croak);
 use Encode qw( decode encode );
 use File::Basename qw(dirname basename);
 use Archive::SevenZip::Entry;
-use File::Temp 'tempfile';
+use File::Temp qw(tempfile tempdir);
 use File::Copy;
 use IPC::Run;
 use Path::Class;
@@ -38,7 +38,7 @@ $VERSION= '0.01';
 # Error codes
 use constant AZ_OK           => 0;
 
-use constant COMPRESSION_STORED        => 0;   # file is stored (no compression)
+use constant COMPRESSION_STORED        => 'Store';   # file is stored (no compression)
 use constant COMPRESSION_DEFLATED      => 8;   # file is Deflated
 
 @EXPORT_OK = (qw(AZ_OK COMPRESSION_STORED COMPRESSION_DEFLATED));
@@ -188,6 +188,8 @@ sub open {
   my $entry = $ar->memberNamed('hello_world.txt');
   print $entry->fileName, "\n";
 
+The path separator must be a forward slash ("/")
+
 This method will one day move to the Archive::Zip-compatibility
 API.
 
@@ -196,6 +198,7 @@ API.
 # Archive::Zip API
 sub memberNamed {
     my( $self, $name, %options )= @_;
+    
     my( $entry ) = grep { $_->fileName eq $name } $self->members( %options );
     $entry
 }
@@ -213,7 +216,7 @@ sub list {
     my $fh = $self->run($cmd, encoding => $options{ fs_encoding } );
     my @output = <$fh>;
     chomp @output;
-    
+
     my %results = (
         header => [],
         archive => [],
@@ -434,8 +437,10 @@ sub archive_or_temp {
 };
 
 sub wait {
-    my( $self, $fh ) = @_;
-    while( <$fh>) {};
+    my( $self, $fh, %options ) = @_;
+    while( <$fh>) {
+        warn $_ if ($options{ verbose } || $self->{verbose})
+    };
 }
 
 =head2 C<< ->add_scalar >>
@@ -472,6 +477,9 @@ sub add_scalar {
     $fh = $self->run( $cmd );
     $self->wait($fh);
     
+    unlink $tempname
+        or warn "Couldn't unlink '$tempname': $!";
+    
     # Hopefully your version of 7zip can rename members (9.30+):
     $cmd = $self->get_command(
         command => 'rn',
@@ -479,7 +487,6 @@ sub add_scalar {
         members => [basename($tempname), $name],
         #options =>  ],
     );
-    warn "@$cmd";
     $fh = $self->run( $cmd );
     $self->wait($fh);
     
@@ -491,6 +498,51 @@ sub add_scalar {
     #);
 };
 
+=head2 C<< ->add_directory >>
+
+    $ar->add_directory( "real_etc", "etc" );
+
+Adds an empty directory
+
+This currently ignores the directory date and time if the directory
+exists
+
+=cut
+
+sub add_directory {
+    my( $self, $localname, $target )= @_;
+    
+    $target ||= $localname;
+    
+    # Create an empty directory, add it to the archive,
+    # then rename that temp name to the wanted name:
+    my $tempname = tempdir;
+    
+    my $cmd = $self->get_command(
+        command => 'a',
+        archivename => $self->archive_or_temp,
+        members => [$tempname],
+        options =>  ['-r0'],
+    );
+    my $fh = $self->run( $cmd );
+    $self->wait($fh);
+    
+    # Hopefully your version of 7zip can rename members (9.30+):
+    $cmd = $self->get_command(
+        command => 'rn',
+        archivename => $self->archive_or_temp,
+        members => [basename($tempname), $target],
+    );
+    $fh = $self->run( $cmd );
+    $self->wait($fh);
+    
+    # Once 7zip supports reading from stdin, this will work again:
+    #my $fh = $self->run( $cmd,
+    #    binmode => ':raw',
+    #    stdin => $scalar,
+    #    verbose => 1,
+    #);
+};
 
 sub add {
     my( $self, %options )= @_;
@@ -509,6 +561,7 @@ sub add {
             # Write the name to a tempfile to be read by 7zip for batching
         };
         my $fh = $self->run( command => 'a',
+            members => \@items,
         );
     };
 };
@@ -558,9 +611,17 @@ sub addString {
     $self->sevenZip->add_scalar($name => $content);
 }
 
-#my $member = $zip->addDirectory($memberName);
 sub addDirectory {
     # Create just a directory name
+    my( $self, $name, $target, %options ) = @_;
+    $target ||= $name;
+    
+    if( ref $name ) {
+        croak "Hashref API not supported, sorry";
+    };
+    
+    $self->sevenZip->add_directory($name, $target, %options);
+    $self->memberNamed($target, %options);
 }
 
 sub members {
@@ -578,6 +639,19 @@ sub numberOfMembers {
     my( $self, %options ) = @_;
     my @m = $self->members( %options );
     0+@m
+}
+
+=head2 C<< $az->memberNamed >>
+
+  my $entry = $az->memberNamed('hello_world.txt');
+  print $entry->fileName, "\n";
+
+=cut
+
+# Archive::Zip API
+sub memberNamed {
+    my( $self, $name, %options )= @_;
+    $self->sevenZip->memberNamed($name, %options );
 }
 
 package Path::Class::Archive::Handle;
