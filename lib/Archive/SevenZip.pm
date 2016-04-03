@@ -7,6 +7,7 @@ use Archive::SevenZip::Entry;
 use File::Temp 'tempfile';
 use File::Copy;
 use IPC::Run;
+use Path::Class;
 
 =head1 NAME
 
@@ -67,7 +68,7 @@ sub find_7z_executable {
     
     while( ! $found and @search) {
         my $dir = shift @search;
-        $class_defaults{'7zip'} = "$dir/7z";
+        $class_defaults{'7zip'} = "" . file("$dir", "7z" );
         $found = $class->version;
     };
     
@@ -365,13 +366,16 @@ sub run {
             $str = "@cmd $redirect_stderr |"
         };
 
-        #warn "Opening [$str]";
+        warn "Opening [$str]"
+            if $options{ verbose };
         
         # Yees, list-open for Win32 is in 5.24, but I want to use it
         # elsewhere too. So, no list-open for you!
         CORE::open( $fh, $str )
             or croak "Couldn't launch [$mode @cmd]: $!/$?";
     } else {
+        warn "Opening [@$cmd]"
+            if $options{ verbose };
         CORE::open( $fh, $mode, @$cmd)
             or croak "Couldn't launch [$mode @$cmd]: $!/$?";
     };
