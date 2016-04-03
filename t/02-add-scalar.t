@@ -17,13 +17,13 @@ my $ar = Archive::SevenZip->new(
     #type => '7z',
 );
 
-(my $tempname, undef) = tempfile;
+#(my $tempname, undef) = tempfile;
 
 my $content = "This is\x{0d}\x{0a}the content";
 $ar->add_scalar('some-member.txt',$content);
 #$ar->writeToFileNamed($tempname);
 
-my @contents = $ar->list();
+my @contents = map { $_->fileName } $ar->list();
 is_deeply \@contents, ["some-member.txt"], "Contents of created archive are OK";
 
 my $written = $ar->content( membername => 'some-member.txt', binmode => ':raw');
