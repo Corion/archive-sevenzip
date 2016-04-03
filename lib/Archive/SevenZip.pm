@@ -64,6 +64,12 @@ use constant COMPRESSION_DEFLATED      => 'Deflate';   # file is Deflated
     '' => 'DOS', # dunno what the appropriate name would be
 );
 
+if( $^O !~ /MSWin/ ) {
+    # Wipe all filesystem encodings because my Debian 7z 9.20 doesn't understand them
+    $sevenzip_charsetname{ $_ } = ''
+        for keys %sevenzip_charsetname;
+};
+
 %class_defaults = (
     '7zip' => '7z',
     fs_encoding => 'UTF-8',
@@ -99,7 +105,6 @@ sub find_7z_executable {
     if( ! $found) {
         $class_defaults{ '7zip' } = $old_default;
     };
-    
     return defined $found ? $found : ()
 }
 
@@ -315,10 +320,10 @@ API.
 
 # Archive::Zip API
 sub extractMember {
-    my( $self, $memberOrName, $extractedName ) = @_;
+    my( $self, $memberOrName, $extractedName, %options ) = @_;
     $extractedName //= $memberOrName;
     
-    my %options = %$self;
+    my %options = (%$self, %options);
     
     my $target_dir = dirname $extractedName;
     my $target_name = basename $extractedName;
@@ -380,11 +385,19 @@ sub get_command {
     my( $self, %options )= @_;
     $options{ members } ||= [];
     $options{ archivename } //= $self->{ archivename };
-    $options{ fs_encoding } //= $self->{ fs_encoding } // $class_defaults{ fs_encoding };
+    if( ! exists $options{ fs_encoding }) {
+        $options{ fs_encoding } //= $self->{ fs_encoding } // $class_defaults{ fs_encoding };
+    };
     $options{ default_options } //= $self->{ default_options } // $class_defaults{ default_options };
     
-    my $charset = $sevenzip_charsetname{ $options{ fs_encoding }}
-        or croak "Unknown filesystem encoding '$options{ fs_encoding }'";
+    my @charset;
+    if( defined $options{ fs_encoding }) {
+        exists $sevenzip_charsetname{ $options{ fs_encoding }}
+            or croak "Unknown filesystem encoding '$options{ fs_encoding }'";
+        if( my $charset = $sevenzip_charsetname{ $options{ fs_encoding }}) {
+            push @charset, "-scs" . $sevenzip_charsetname{ $options{ fs_encoding }};
+        };
+    };
     for(@{ $options{ members }}) {
         $_ = encode $options{ fs_encoding }, $_;
     };
@@ -397,7 +410,7 @@ sub get_command {
         add_quotes($self->{ '7zip' }),
         @{ $options{ default_options }},
         $options{ command },
-        "-scs$charset",
+        @charset,
         add_quotes( @{ $options{ options }} ),
         add_quotes( $options{ archivename } ),
         add_quotes( @{ $options{ members }} ),
