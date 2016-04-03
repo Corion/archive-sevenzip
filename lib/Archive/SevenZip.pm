@@ -654,6 +654,14 @@ sub memberNamed {
     $self->sevenZip->memberNamed($name, %options );
 }
 
+sub extractMember {
+    my( $self, $name, $target, %options ) = @_;
+    if( ref $name and $name->can('fileName')) {
+        $name = $name->fileName;
+    };
+    $self->sevenZip->extractMember( $name, $target, %options );
+}
+
 package Path::Class::Archive::Handle;
 use strict;
 
