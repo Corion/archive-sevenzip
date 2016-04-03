@@ -320,10 +320,10 @@ API.
 
 # Archive::Zip API
 sub extractMember {
-    my( $self, $memberOrName, $extractedName, %options ) = @_;
+    my( $self, $memberOrName, $extractedName, %_options ) = @_;
     $extractedName //= $memberOrName;
     
-    my %options = (%$self, %options);
+    my %options = (%$self, %_options);
     
     my $target_dir = dirname $extractedName;
     my $target_name = basename $extractedName;
@@ -449,8 +449,23 @@ sub run {
     } else {
         warn "Opening [@$cmd]"
             if $options{ verbose };
-        CORE::open( $fh, $mode, @$cmd)
-            or croak "Couldn't launch [$mode @$cmd]: $!/$?";
+
+        require IPC::Open3;
+        if( $self->{verbose} ) {
+            CORE::open( $fh, $mode, @$cmd)
+                or croak "Couldn't launch [$mode @$cmd]: $!/$?";
+        } else {
+            CORE::open( my $fh_err, '>', '/dev/null' ) or warn "Couldn't redirect child STDERR";
+            my $errh = fileno $fh_err;
+            # We accumulate zombie PIDs here, ah well.
+            my $pid = IPC::Open3::open3( my $fh_in, my $fh_out, '>&' . $errh, @$cmd)
+                or croak "Couldn't launch [$mode @$cmd]: $!/$?";
+            if( $mode eq '|-' ) {
+                $fh = $fh_in;
+            } else {
+                $fh = $fh_out
+            };
+        }
     };
     if( $options{ encoding }) {
         binmode $fh, ":encoding($options{ encoding })";

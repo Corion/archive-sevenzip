@@ -38,6 +38,8 @@ sub data_matches_ok {
         cmp_ok $memory, 'eq', $original, "extracted data matches ($name)";
     } else {
         fail "extracted data matches ($name)";
+        diag "Got      [$memory]";
+        diag "expected [$original]";
     };
 }
 
