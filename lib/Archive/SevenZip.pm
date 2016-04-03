@@ -10,7 +10,7 @@ use IPC::Run;
 
 =head1 NAME
 
-Archive::SevenZip - read 7z , zip , ISO9960 and other archives
+Archive::SevenZip - Read/write 7z , zip , ISO9960 and other archives
 
 =head1 SYNOPSIS
 
