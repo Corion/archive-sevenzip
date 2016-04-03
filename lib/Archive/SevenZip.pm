@@ -8,6 +8,7 @@ use File::Temp 'tempfile';
 use File::Copy;
 use IPC::Run;
 use Path::Class;
+use Exporter 'import'; # for the error codes, in Archive::Zip API compatibility
 
 =head1 NAME
 
@@ -30,8 +31,14 @@ Archive::SevenZip - Read/write 7z , zip , ISO9960 and other archives
 
 =cut
 
-use vars qw(%sevenzip_charsetname %class_defaults $VERSION);
+use vars qw(%sevenzip_charsetname %class_defaults $VERSION @EXPORT_OK);
 $VERSION= '0.01';
+
+# Archive::Zip API
+# Error codes
+use constant AZ_OK           => 0;
+
+@EXPORT_OK = (qw(AZ_OK));
 
 %sevenzip_charsetname = (
     'UTF-8' => 'UTF-8',
@@ -159,21 +166,22 @@ sub open {
     my @contents = $self->list();
 }
 
-=head2 C<< $ar->list >>
+=head2 C<< $ar->memberNamed >>
 
-  my @entries = $ar->list;
-  for my $entry (@entries) {
-      print $entry->name, "\n";
-  };
-
-Lists the entries in the archive. A fresh archive which does not
-exist on disk yet has no entries. The returned entries
-are L<Archive::SevenZip::Entry> instances.
+  my $entry = $ar->memberNamed('hello_world.txt');
+  print $entry->fileName, "\n";
 
 This method will one day move to the Archive::Zip-compatibility
 API.
 
 =cut
+
+# Archive::Zip API
+sub memberNamed {
+    my( $self, $name, %options )= @_;
+    my( $entry ) = grep { $_->fileName eq $name } $self->members( %options );
+    $entry
+}
 
 # Archive::Zip API
 sub list {
@@ -234,6 +242,7 @@ sub list {
 { no warnings 'once';
 *members = \&list;
 }
+
 
 =head2 C<< $ar->openMemberFH >>
 
@@ -305,6 +314,7 @@ sub extractMember {
             or croak "Couldn't move '$memberOrName' to '$extractedName': $?";
     };
     
+    return AZ_OK;
 };
 
 sub add_quotes {
