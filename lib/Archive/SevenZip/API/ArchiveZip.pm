@@ -62,6 +62,16 @@ sub members {
     $self->sevenZip->members;
 }
 
+sub memberNames {
+    my( $self ) = @_;
+    map { $_->fileName } $self->sevenZip->members;
+}
+
+sub membersMatching {
+    my( $self, $re, %options ) = @_;
+    grep { $_->fileName =~ /$re/ } $self->sevenZip->members;
+}
+
 =head2 C<< $ar->numberOfMembers >>
 
   my $count = $az->numberOfMembers();
@@ -93,6 +103,39 @@ sub extractMember {
         $name = $name->fileName;
     };
     $self->sevenZip->extractMember( $name, $target, %options );
+}
+
+sub removeMember {
+    my( $self, $name, $target, %options ) = @_;
+    # Just for the result:
+    my $res = ref $name ? $name : $self->memberNamed( $name );
+    
+    if( ref $name and $name->can('fileName')) {
+        $name = $name->fileName;
+    };
+    $self->sevenZip->removeMember( $name, %options );
+    
+    $res
+}
+
+sub addFile {
+    my( $self, $name, $target, %options ) = @_;
+    if( ref $name and $name->can('fileName')) {
+        $name = $name->fileName;
+    };
+    $target ||= $name;
+    $self->sevenZip->add( items => [[ $name, $target ]], %options );
+    return $self->memberNamed($target, %options);
+}
+
+sub addMember {
+    my( $self, $name, $target, %options ) = @_;
+    if( ref $name and $name->can('fileName')) {
+        $name = $name->fileName;
+    };
+    $target ||= $name;
+    $self->sevenZip->add( items => [[ $name, $target ]], %options );
+    return $self->memberNamed($target, %options);
 }
 
 __END__

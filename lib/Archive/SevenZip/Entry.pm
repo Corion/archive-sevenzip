@@ -56,6 +56,14 @@ sub crc32String {
     lc $_[0]->{CRC};
 }
 
+sub desiredCompressionMethod {
+    $_[0]->{Method}
+}
+
+sub uncompressedSize {
+    $_[0]->{Size}
+}
+
 sub dir {
     # We need to return the appropriate class here
     # so that further calls to (like) dir->list
