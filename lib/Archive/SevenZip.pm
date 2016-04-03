@@ -127,8 +127,8 @@ sub version {
     my $fh = $self->run($cmd, binmode => ':raw');
     local $/ = "\n";
     my @output = <$fh>;
-    if( @output > 5) {
-        $output[1] =~ /^7-Zip\s+.*?(\d+\.\d+)\s+Copyright/
+    if( @output >= 3) {
+        $output[1] =~ /^7-Zip\s+.*?(\d+\.\d+)\s+(?:\s*:\s*)?Copyright/
             or return undef;
         return $1;
     } else {
