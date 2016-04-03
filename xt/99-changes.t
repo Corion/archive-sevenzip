@@ -12,7 +12,7 @@ release date is mentioned as well
 
 =cut
 
-my $module = 'Plack::Middleware::Pod';
+my $module = 'Archive::SevenZip';
 
 (my $file = $module) =~ s!::!/!g;
 require "$file.pm";
