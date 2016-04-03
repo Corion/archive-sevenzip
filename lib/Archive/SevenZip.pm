@@ -577,6 +577,11 @@ sub add {
     my( $self, %options )= @_;
     
     my @items = @{ delete $options{ items } || [] };
+    
+    # Split up the list into one batch for the listfiles
+    # and the list of files we need to rename
+    
+    my @filelist;
     for my $item (@items) {
         if( ! ref $item ) {
             $item = [ $item, $item ];
@@ -584,14 +589,47 @@ sub add {
         my( $name, $storedName ) = @$item;
 
         if( $name ne $storedName ) {
-            # We need to pipe to 7zip from stdin
+            # We need to pipe to 7zip from stdin (no, we don't, we can rename afterwards)
+            # This still means we might overwrite an already existing file in the archive...
+            # But 7-zip seems to not like duplicate filenames anyway in "@"-listfiles...
+            my $cmd = $self->get_command(
+                command => 'a',
+                archivename => $self->archive_or_temp,
+                members => [$name],
+                #options =>  ],
+            );
+            my $fh = $self->run( $cmd );
+            $self->wait($fh, %options );
+            $cmd = $self->get_command(
+                command => 'rn',
+                archivename => $self->archive_or_temp,
+                members => [$name, $storedName],
+                #options =>  ],
+            );
+            $fh = $self->run( $cmd );
+            $self->wait($fh, %options );
+
         } else {
             # 7zip can read the file from disk
             # Write the name to a tempfile to be read by 7zip for batching
+            push @filelist, $name;
         };
-        my $fh = $self->run( command => 'a',
-            members => \@items,
+    };
+    
+    if( @filelist ) {
+        my( $fh, $name) = tempfile;
+        binmode $fh, ':raw';
+        print {$fh} join "\r\n", @filelist;
+        close $fh;
+
+        my $cmd = $self->get_command(
+            command => 'a',
+            archivename => $self->archive_or_temp,
+            members => ['@'.$name],
+            #options =>  ],
         );
+        my $fh = $self->run( $cmd );
+        $self->wait($fh, %options);
     };
 };
 
