@@ -51,7 +51,8 @@ foreach my $unix_time (
 
 my $version = Archive::SevenZip->find_7z_executable();
 if( ! $version ) {
-    BAIL_OUT "7z binary not found (not installed?)";
+    SKIP: { skip "7z binary not found (not installed?)", 65; }
+    exit;
 };
 diag "7-zip version $version";
 if( $version <= 9.20) {

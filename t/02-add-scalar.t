@@ -7,7 +7,8 @@ use File::Temp 'tempfile';
 
 my $version = Archive::SevenZip->find_7z_executable();
 if( ! $version ) {
-    BAIL_OUT "7z binary not found (not installed?)";
+    SKIP: { skip "7z binary not found (not installed?)", 2; }
+    exit;
 };
 diag "7-zip version $version";
 if( $version <= 9.20) {
