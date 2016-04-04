@@ -6,7 +6,7 @@ use File::Basename ();
 use Path::Class ();
 
 use vars qw($VERSION);
-$VERSION= '0.01';
+$VERSION= '0.02';
 
 sub new {
     my( $class, %options) = @_;
