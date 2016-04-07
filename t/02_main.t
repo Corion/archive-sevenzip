@@ -16,13 +16,22 @@ use File::Spec;
 
 use Test::More tests => 83;
 
-use t::common;
+use vars qw($testZipDoesntWork $status);
+
+BEGIN { SKIP:
+if( ! eval {
+    require t::common;
+    t::common->import;
+    1
+}) {
+    skip 83, "Archive::Zip not installed, skipping compatibility tests";
+};}
 
 #####################################################################
 # Testing Utility Functions
 
 #--------- check CRC
-is(TESTSTRINGCRC, 0xac373f32, 'Testing CRC matches expected');
+is(TESTSTRINGCRC(), 0xac373f32, 'Testing CRC matches expected');
 
 # Bad times die
 SCOPE: {
@@ -77,12 +86,12 @@ my $numberOfMembers = $zip->numberOfMembers();
 is($numberOfMembers, 0, '->numberofMembers is 0');
 
 # writeToFileNamed	# Archive::Zip::Archive
-my $status = $zip->writeToFileNamed(OUTPUTZIP);
+my $status = $zip->writeToFileNamed(OUTPUTZIP());
 is($status, AZ_OK, '->writeToFileNames ok');
 
 my $zipout;
 SKIP: {
-    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP;
+    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP();
     if ($^O eq 'MSWin32') {
         print STDERR
           "\n# You might see an expected 'zipfile is empty' warning now.\n";
@@ -102,8 +111,8 @@ SKIP: {
 # unzip -t returns error code=1 for warning on empty
 
 #--------- add a directory
-my $memberName = TESTDIR . '/';
-my $dirName    = TESTDIR;
+my $memberName = TESTDIR() . '/';
+my $dirName    = TESTDIR();
 
 # addDirectory	# Archive::Zip::Archive
 # new	# Archive::Zip::Member
@@ -125,14 +134,14 @@ $numberOfMembers = $zip->numberOfMembers();
 is($numberOfMembers, 1);
 
 # writeToFileNamed	# Archive::Zip::Archive
-$status = $zip->writeToFileNamed(OUTPUTZIP);
+$status = $zip->writeToFileNamed(OUTPUTZIP());
 is($status, AZ_OK);
 
 # Does the modification time get corrupted?
 is(($zip->members)[0]->lastModFileDateTime(), $dir_time);
 
 SKIP: {
-    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP;
+    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP();
     ($status, $zipout) = testZip();
 
     # STDERR->print("status= $status, out=$zipout\n");
@@ -141,7 +150,7 @@ SKIP: {
 }
 
 #--------- extract the directory by name
-rmtree([TESTDIR], 0, 0);
+rmtree([TESTDIR()], 0, 0);
 $status = $zip->extractMember($memberName);
 is($status, AZ_OK);
 ok(-d $dirName);
@@ -153,11 +162,11 @@ is($status, AZ_OK);
 ok(-d $dirName);
 
 #--------- add a string member, uncompressed
-$memberName = TESTDIR . '/string.txt';
+$memberName = TESTDIR() . '/string.txt';
 
 # addString	# Archive::Zip::Archive
 # newFromString	# Archive::Zip::Member
-$member = $zip->addString(TESTSTRING, $memberName);
+$member = $zip->addString(TESTSTRING(), $memberName);
 ok(defined($member));
 
 is($member->fileName(), $memberName);
@@ -172,11 +181,11 @@ $numberOfMembers = $zip->numberOfMembers();
 is($numberOfMembers, 2);
 
 # writeToFileNamed	# Archive::Zip::Archive
-$status = $zip->writeToFileNamed(OUTPUTZIP);
+$status = $zip->writeToFileNamed(OUTPUTZIP());
 is($status, AZ_OK);
 
 SKIP: {
-    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP;
+    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP();
     ($status, $zipout) = testZip();
 
     # STDERR->print("status= $status, out=$zipout\n");
@@ -184,15 +193,15 @@ SKIP: {
     is($status, 0);
 }
 
-is($member->crc32(), TESTSTRINGCRC);
+is($member->crc32(), TESTSTRINGCRC());
 
-is($member->crc32String(), sprintf("%08x", TESTSTRINGCRC));
+is($member->crc32String(), sprintf("%08x", TESTSTRINGCRC()));
 
 #--------- extract it by name
 $status = $zip->extractMember($memberName);
 is($status, AZ_OK);
 ok(-f $memberName);
-is(fileCRC($memberName), TESTSTRINGCRC);
+is(fileCRC($memberName), TESTSTRINGCRC());
 
 #--------- now compress it and re-test
 #my $oldCompressionMethod =
@@ -200,13 +209,13 @@ is(fileCRC($memberName), TESTSTRINGCRC);
 #is($oldCompressionMethod, COMPRESSION_STORED, 'old compression method OK');
 
 # writeToFileNamed	# Archive::Zip::Archive
-$status = $zip->writeToFileNamed(OUTPUTZIP);
+$status = $zip->writeToFileNamed(OUTPUTZIP());
 is($status, AZ_OK, 'writeToFileNamed returns AZ_OK');
-is($member->crc32(),            TESTSTRINGCRC);
-is($member->uncompressedSize(), TESTSTRINGLENGTH);
+is($member->crc32(),            TESTSTRINGCRC());
+is($member->uncompressedSize(), TESTSTRINGLENGTH());
 
 SKIP: {
-    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP;
+    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP();
     ($status, $zipout) = testZip();
 
     # STDERR->print("status= $status, out=$zipout\n");
@@ -218,11 +227,11 @@ SKIP: {
 $status = $zip->extractMember($memberName);
 is($status, AZ_OK);
 ok(-f $memberName);
-is(fileCRC($memberName), TESTSTRINGCRC);
+is(fileCRC($memberName), TESTSTRINGCRC());
 
 #--------- add a file member, compressed
-ok(rename($memberName, TESTDIR . '/file.txt'));
-$memberName = TESTDIR . '/file.txt';
+ok(rename($memberName, TESTDIR() . '/file.txt'));
+$memberName = TESTDIR() . '/file.txt';
 
 # addFile	# Archive::Zip::Archive
 # newFromFile	# Archive::Zip::Member
@@ -232,13 +241,13 @@ ok(defined($member));
 is($member->desiredCompressionMethod(), COMPRESSION_DEFLATED);
 
 # writeToFileNamed	# Archive::Zip::Archive
-$status = $zip->writeToFileNamed(OUTPUTZIP);
+$status = $zip->writeToFileNamed(OUTPUTZIP());
 is($status,                     AZ_OK);
-is($member->crc32(),            TESTSTRINGCRC);
-is($member->uncompressedSize(), TESTSTRINGLENGTH);
+is($member->crc32(),            TESTSTRINGCRC());
+is($member->uncompressedSize(), TESTSTRINGLENGTH());
 
 SKIP: {
-    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP;
+    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP();
     ($status, $zipout) = testZip();
 
     # STDERR->print("status= $status, out=$zipout\n");
@@ -253,7 +262,7 @@ $newName =~ s/\.txt/2.txt/;
 $status = $zip->extractMember($memberName, $newName);
 is($status, AZ_OK);
 ok(-f $newName);
-is(fileCRC($newName), TESTSTRINGCRC);
+is(fileCRC($newName), TESTSTRINGCRC());
 
 #--------- now make it uncompressed and re-test
 #$oldCompressionMethod = $member->desiredCompressionMethod(COMPRESSION_STORED);
@@ -261,13 +270,13 @@ is(fileCRC($newName), TESTSTRINGCRC);
 #is($oldCompressionMethod, COMPRESSION_DEFLATED);
 
 # writeToFileNamed	# Archive::Zip::Archive
-$status = $zip->writeToFileNamed(OUTPUTZIP);
+$status = $zip->writeToFileNamed(OUTPUTZIP());
 is($status,                     AZ_OK);
-is($member->crc32(),            TESTSTRINGCRC);
-is($member->uncompressedSize(), TESTSTRINGLENGTH);
+is($member->crc32(),            TESTSTRINGCRC());
+is($member->uncompressedSize(), TESTSTRINGLENGTH());
 
 SKIP: {
-    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP;
+    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP();
     ($status, $zipout) = testZip();
 
     # STDERR->print("status= $status, out=$zipout\n");
@@ -279,14 +288,14 @@ SKIP: {
 $status = $zip->extractMember($memberName, $newName);
 is($status, AZ_OK);
 ok(-f $newName);
-is(fileCRC($newName), TESTSTRINGCRC);
+is(fileCRC($newName), TESTSTRINGCRC());
 
-# Now, the contents of OUTPUTZIP are:
+# Now, the contents of OUTPUTZIP() are:
 # Length   Method    Size  Ratio   Date   Time   CRC-32    Name
 #--------  ------  ------- -----   ----   ----   ------    ----
-#       0  Stored        0   0%  03-17-00 11:16  00000000  testDir/
-#     300  Defl:N      146  51%  03-17-00 11:16  ac373f32  testDir/string.txt
-#     300  Stored      300   0%  03-17-00 11:16  ac373f32  testDir/file.txt
+#       0  Stored        0   0%  03-17-00 11:16  00000000  TESTDIR/
+#     300  Defl:N      146  51%  03-17-00 11:16  ac373f32  TESTDIR/string.txt
+#     300  Stored      300   0%  03-17-00 11:16  ac373f32  TESTDIR/file.txt
 #--------          -------  ---                            -------
 #     600              446  26%                            3 files
 
@@ -323,11 +332,11 @@ diag "Removing " . $members[0]->fileName;
 $member = $zip->removeMember($members[0]);
 is($member, $members[0]);
 
-$status = $zip->writeToFileNamed(OUTPUTZIP);
+$status = $zip->writeToFileNamed(OUTPUTZIP());
 is($status, AZ_OK);
 
 SKIP: {
-    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP;
+    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP();
     ($status, $zipout) = testZip();
 
     # STDERR->print("status= $status, out=$zipout\n");
@@ -355,11 +364,11 @@ SKIP: {
 #is(scalar(@memberNames), 3);
 #is($memberNames[1],      $memberName);
 
-#$status = $zip->writeToFileNamed(OUTPUTZIP);
+#$status = $zip->writeToFileNamed(OUTPUTZIP());
 #is($status, AZ_OK);
 
 #SKIP: {
-#    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP;
+#    skip("No 'unzip' program to test against", 1) unless HAVEUNZIP();
 #    ($status, $zipout) = testZip();
 
 #    # STDERR->print("status= $status, out=$zipout\n");

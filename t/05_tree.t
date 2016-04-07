@@ -11,7 +11,15 @@ use FileHandle;
 use File::Spec;
 
 use Test::More tests => 2;
-use t::common;
+BEGIN { SKIP:
+if( ! eval {
+    require t::common;
+    t::common->import;
+    1
+}) {
+    skip 2, "Archive::Zip not installed, skipping compatibility tests";
+};
+}
 
 my $version = Archive::SevenZip->find_7z_executable();
 if( ! $version ) {
@@ -20,7 +28,7 @@ if( ! $version ) {
 };
 
 
-use constant FILENAME => File::Spec->catfile(TESTDIR, 'testing.txt');
+use constant FILENAME => File::Spec->catfile(TESTDIR(), 'testing.txt');
 
 my $zip;
 my @memberNames;
