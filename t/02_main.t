@@ -14,18 +14,22 @@ use FileHandle;
 use File::Path;
 use File::Spec;
 
-use Test::More tests => 83;
+use Test::More;
 
 use vars qw($testZipDoesntWork $status);
 
-BEGIN { SKIP:
+BEGIN {
 if( ! eval {
     require t::common;
     t::common->import;
     1
 }) {
-    skip 83, "Archive::Zip not installed, skipping compatibility tests";
-};}
+    plan skip_all => "Archive::Zip not installed, skipping compatibility tests", 83;
+    exit;
+   } else {
+       plan tests => 83;
+   }
+}
 
 #####################################################################
 # Testing Utility Functions

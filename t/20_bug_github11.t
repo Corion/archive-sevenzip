@@ -9,13 +9,27 @@ use warnings;
 use Archive::SevenZip 'AZ_OK';
 use File::Spec;
 use File::Path;
-use t::common;
 
-use Test::More tests => 2;
+use Test::More;
+
+BEGIN {
+if( ! eval {
+    require t::common;
+    t::common->import;
+    1
+}) {
+    plan skip_all => "Archive::Zip not installed, skipping compatibility tests";
+    exit;
+   }
+   else {
+       plan tests => 2;
+   }
+}
 
 my $version = Archive::SevenZip->find_7z_executable();
 if( ! $version ) {
-    BAIL_OUT "7z binary not found (not installed?)";
+    SKIP: { skip 2, "7z binary not found (not installed?)"; };
+    exit
 };
 diag "7-zip version $version";
 

@@ -11,15 +11,16 @@ use FileHandle;
 use File::Spec;
 
 use Test::More tests => 2;
-BEGIN { SKIP:
+BEGIN {
 if( ! eval {
     require t::common;
     t::common->import;
     1
-}) {
-    skip 2, "Archive::Zip not installed, skipping compatibility tests";
-};
-}
+}) { SKIP: {
+    skip "Archive::Zip not installed, skipping compatibility tests", 2;
+   }
+   exit;
+}}
 
 my $version = Archive::SevenZip->find_7z_executable();
 if( ! $version ) {
