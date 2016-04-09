@@ -120,7 +120,7 @@ sub find_7z_executable {
 
 Creates a new class instance.
 
-C<find> - will search C<$ENV{PATH}>, 
+C<find> - will try to find the executable using C<< ->find_7z_executable >>
 
 =cut
 
@@ -486,7 +486,7 @@ sub wait {
     };
 }
 
-=head2 C<< ->add_scalar >>
+=head2 C<< $ar->add_scalar >>
 
     $ar->add_scalar( "Some name.txt", "This is the content" );
 
@@ -541,7 +541,7 @@ sub add_scalar {
     #);
 };
 
-=head2 C<< ->add_directory >>
+=head2 C<< $ar->add_directory >>
 
     $ar->add_directory( "real_etc", "etc" );
 

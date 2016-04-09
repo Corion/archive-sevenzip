@@ -21,6 +21,19 @@ sub sevenZip { $_[0]->{sevenZip} }
 
 Archive::SevenZip::API::ArchiveZip - Archive::Zip compatibility API
 
+=head1 SYNOPSIS
+
+  my $ar = Archive::SevenZip->archiveZipApi(
+      find => 1,
+      archivename => $archivename,
+      verbose => $verbose,
+  );
+
+This module implements just enough of the L<Archive::Zip>
+API to pass some of the Archive::Zip test files. Ideally you can
+use this API to enable a script that uses Archive::Zip
+to also read other archive files supported by 7z.
+
 =cut
 
 sub writeToFileNamed {
