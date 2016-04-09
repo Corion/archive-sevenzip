@@ -7,7 +7,7 @@ use File::Copy;
 use Archive::SevenZip 'AZ_OK';
 
 use vars qw($VERSION);
-$VERSION= '0.03';
+$VERSION= '0.04';
 
 sub new {
     my( $class, %options )= @_;

@@ -1,3 +1,9 @@
+0.04 20160409
+    . Switch tests to make indirect reliance on Archive::Zip optional
+    . This time, test those changes using Test::Without::Module
+    . Fix some documentation, add SYNOPSIS to Archive::SevenZip::API::ArchiveZip
+      No code changes
+
 0.03 20160407
     . Switch tests to make indirect reliance on Archive::Zip optional
       No code changes

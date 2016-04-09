@@ -33,7 +33,7 @@ Archive::SevenZip - Read/write 7z , zip , ISO9960 and other archives
 =cut
 
 use vars qw(%sevenzip_charsetname %class_defaults $VERSION @EXPORT_OK %EXPORT_TAGS);
-$VERSION= '0.03';
+$VERSION= '0.04';
 
 # Archive::Zip API
 # Error codes
