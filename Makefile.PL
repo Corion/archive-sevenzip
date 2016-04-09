@@ -86,6 +86,7 @@ sub WriteMakefile1 {  #Written by Alexandr Ciornii, version 0.21. Added by eumm-
 sub regen_README {
     eval {
         require Pod::Readme;
+        Pod::Readme->VERSION('1.0.2'); #0.11 may hang
 
         my $parser = Pod::Readme->new();
 
