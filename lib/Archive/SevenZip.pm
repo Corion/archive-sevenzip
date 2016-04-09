@@ -99,6 +99,9 @@ sub find_7z_executable {
 
     while( ! defined $found and @search) {
         my $dir = shift @search;
+        if ($^O eq 'MSWin32') {
+            next unless -e file("$dir", "7z.exe" );
+        }
         $class_defaults{'7zip'} = "" . file("$dir", "7z" );
         $found = $class->version;
     };
