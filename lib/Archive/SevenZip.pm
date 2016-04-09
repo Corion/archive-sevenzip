@@ -93,7 +93,7 @@ sub find_7z_executable {
     my $envsep = $^O =~ /MSWin/ ? ';' : ':';
     my @search = split /$envsep/, $ENV{PATH};
     if( $^O =~ /MSWin/i ) {
-        push @search, map { "$_\\7-Zip" } ($ENV{'ProgramFiles'}, $ENV{'ProgramFiles(x86)'});
+        push @search, map { "$_\\7-Zip" } grep {defined} ($ENV{'ProgramFiles'}, $ENV{'ProgramFiles(x86)'});
     };
     my $found = $class->version;
 
