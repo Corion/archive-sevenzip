@@ -30,4 +30,4 @@ requires:
   Time::Piece: '0'
 resources:
   repository: https://github.com/Corion/archive-sevenzip
-version: '0.02'
+version: '0.05'

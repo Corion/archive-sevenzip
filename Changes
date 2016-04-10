@@ -1,3 +1,7 @@
+0.05 20160410
+    . More test fixes by Alexandr Ciornii
+    . No "undefined" warnings on non-Windows sytems
+
 0.04 20160409
     . Switch tests to make indirect reliance on Archive::Zip optional
     . This time, test those changes using Test::Without::Module
