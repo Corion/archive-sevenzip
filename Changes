@@ -1,3 +1,8 @@
+0.06 20160411
+    . Restore compatibility with Perl 5.6.x
+      This means foregoing the defined-or operator, but as that one
+      only came in with Perl 5.10, I'm removing the use
+
 0.05 20160410
     . More test fixes by Alexandr Ciornii
     . No "undefined" warnings on non-Windows sytems
