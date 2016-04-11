@@ -662,10 +662,46 @@ sub add {
     };
 };
 
+=head2 C<< ->archiveZipApi >>
+
+  my $ar = Archive::SevenZip->archiveZipApi(
+      find => 1,
+      archivename => $archivename,
+      verbose => $verbose,
+  );
+  print "$_\n" for $ar->list_files;
+
+This is an alternative constructor that gives you an API
+that is somewhat compatible with the API of L<Archive::Zip>.
+See also L<Archive::SevenZip::API::ArchiveZip>.
+
+=cut
+
 sub archiveZipApi {
     my( $class, %options ) = @_;
     require Archive::SevenZip::API::ArchiveZip;
     Archive::SevenZip::API::ArchiveZip->new( %options )
+}
+
+=head2 C<< ->archiveTarApi >>
+
+  my $ar = Archive::SevenZip->archiveTarApi(
+      find => 1,
+      archivename => $archivename,
+      verbose => $verbose,
+  );
+  print "$_\n" for $ar->list_files;
+
+This is an alternative constructor that gives you an API
+that is somewhat compatible with the API of L<Archive::Tar>.
+See also L<Archive::SevenZip::API::ArchiveTar>.
+
+=cut
+
+sub archiveTarApi {
+    my( $class, %options ) = @_;
+    require Archive::SevenZip::API::ArchiveTar;
+    Archive::SevenZip::API::ArchiveTar->new( %options )
 }
 
 package Path::Class::Archive::Handle;
