@@ -312,6 +312,7 @@ sub openMemberFH {
 sub content {
     my( $self, %options ) = @_;
     my $fh = $self->openMemberFH( %options );
+    binmode $fh;
     local $/;
     <$fh>
 }
