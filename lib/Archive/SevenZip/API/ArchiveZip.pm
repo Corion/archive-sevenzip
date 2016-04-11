@@ -44,7 +44,8 @@ sub writeToFileNamed {
 
 sub addFileOrDirectory {
     my($self, $name, $newName, $compressionLevel) = @_;
-    $newName //= $name;
+    $newName = $name
+        unless defined $newName;
     $self->sevenZip->add(
         items => [ [$name, $newName] ],
         compression => $compressionLevel

@@ -25,10 +25,17 @@ WriteMakefile1(
     VERSION_FROM        => $main_file,
     ABSTRACT_FROM       => $main_file,
     META_MERGE => {
+        "meta-spec" => { version => 2 },
         resources => {
-            repository => 'https://github.com/Corion/archive-sevenzip',
+            repository => {
+                web => 'https://github.com/Corion/archive-sevenzip',
+                url => 'git://github.com/Corion/archive-sevenzip.git',
+                type => 'git',
+            }
         },
     },
+    
+    MIN_PERL_VERSION => '5.006',
 
     ($eumm_version >= 6.3001
       ? ('LICENSE'=> 'perl')

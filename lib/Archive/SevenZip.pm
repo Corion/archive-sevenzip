@@ -140,7 +140,8 @@ sub new {
     };
     
     for( keys %class_defaults ) {
-        $options{ $_ } //= $class_defaults{ $_ };
+        $options{ $_ } = $class_defaults{ $_ }
+            unless defined $options{ $_ };
     };
     
     bless \%options => $class
@@ -149,7 +150,8 @@ sub new {
 sub version {
     my( $self_or_class, %options) = @_;
     for( keys %class_defaults ) {
-        $options{ $_ } //= $class_defaults{ $_ };
+        $options{ $_ } = $class_defaults{ $_ }
+            unless defined $options{ $_ };
     };
     my $self = ref $self_or_class ? $self_or_class : $self_or_class->new( %options );
     
@@ -221,7 +223,7 @@ sub memberNamed {
 sub list {
     my( $self, %options )= @_;
     
-    if( ! defined ($options{archivename} // $self->{archivename})) {
+    if( ! grep { defined $_ } $options{archivename}, $self->{archivename}) {
         # We are an archive that does not exist on disk yet
         return
     };
@@ -327,7 +329,8 @@ API.
 # Archive::Zip API
 sub extractMember {
     my( $self, $memberOrName, $extractedName, %_options ) = @_;
-    $extractedName //= $memberOrName;
+    $extractedName = $memberOrName
+        unless defined $extractedName;
     
     my %options = (%$self, %_options);
     
@@ -390,11 +393,14 @@ sub add_quotes {
 sub get_command {
     my( $self, %options )= @_;
     $options{ members } ||= [];
-    $options{ archivename } //= $self->{ archivename };
+    $options{ archivename } = $self->{ archivename }
+        unless defined $options{ archivename };
     if( ! exists $options{ fs_encoding }) {
-        $options{ fs_encoding } //= $self->{ fs_encoding } // $class_defaults{ fs_encoding };
+        $options{ fs_encoding } = defined $self->{ fs_encoding } ? $self->{ fs_encoding } : $class_defaults{ fs_encoding };
     };
-    $options{ default_options } //= $self->{ default_options } // $class_defaults{ default_options };
+    if( ! defined $options{ default_options }) {
+        $options{ default_options } = defined $self->{ default_options } ? $self->{ default_options } : $class_defaults{ default_options };
+    };
     
     my @charset;
     if( defined $options{ fs_encoding }) {
@@ -682,6 +688,12 @@ This module tries to mimic the API of L<Archive::Zip> in some cases
 and in other cases, the API of L<Path::Class>. It is also a very rough
 draft that just happens to be doing what I need, mostly extracting
 files.
+
+=head1 SEE ALSO
+
+L<File::Unpack> - also supports unpacking from 7z archives
+
+L<Compress::unLZMA> - uncompressor for the LZMA compression method used by 7z
 
 =head1 REPOSITORY
 

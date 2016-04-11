@@ -41,14 +41,17 @@
             "IPC::Open3" : "0",
             "Path::Class" : "0",
             "Test::More" : "0",
-            "Time::Piece" : "0"
+            "Time::Piece" : "0",
+            "perl" : "5.006"
          }
       }
    },
    "release_status" : "stable",
    "resources" : {
       "repository" : {
-         "url" : "https://github.com/Corion/archive-sevenzip"
+         "type" : "git",
+         "url" : "git://github.com/Corion/archive-sevenzip.git",
+         "web" : "https://github.com/Corion/archive-sevenzip"
       }
    },
    "version" : "0.05"
