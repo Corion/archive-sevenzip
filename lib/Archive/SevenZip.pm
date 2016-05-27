@@ -32,7 +32,11 @@ Archive::SevenZip - Read/write 7z , zip , ISO9960 and other archives
 
 =cut
 
-use vars qw(%sevenzip_charsetname %class_defaults $VERSION @EXPORT_OK %EXPORT_TAGS);
+use vars qw(
+    %sevenzip_charsetname
+    %sevenzip_stdin_support
+    %class_defaults
+    $VERSION @EXPORT_OK %EXPORT_TAGS);
 $VERSION= '0.06';
 
 # Archive::Zip API
@@ -63,6 +67,15 @@ use constant COMPRESSION_DEFLATED      => 'Deflate';   # file is Deflated
     'Latin-1' => 'WIN',
     'ISO-8859-1' => 'WIN',
     '' => 'DOS', # dunno what the appropriate name would be
+);
+
+%sevenzip_stdin_support = (
+    #'7z'   => 1,
+    'xz'    => 1,
+    'lzma'  => 1,
+    'tar'   => 1,
+    'gzip'  => 1,
+    'bzip2' => 1,
 );
 
 if( $^O !~ /MSWin/ ) {
@@ -229,7 +242,10 @@ sub list {
     };
     my $cmd = $self->get_command( command => "l", options => ["-slt"], %options );
     
-    my $fh = $self->run($cmd, encoding => $options{ fs_encoding } );
+    my $fh = $self->run($cmd,
+        encoding => $options{ fs_encoding },
+        stdin_fh => $options{ fh },
+     );
     my @output = <$fh>;
     my %results = (
         header => [],
@@ -425,6 +441,7 @@ sub get_command {
         $options{ command },
         @charset,
         add_quotes( @{ $options{ options }} ),
+        "--",
         add_quotes( $options{ archivename } ),
         add_quotes( @{ $options{ members }} ),
     ];
@@ -434,7 +451,7 @@ sub run {
     my( $self, $cmd, %options )= @_;
     
     my $mode = '-|';
-    if( defined $options{ stdin }) {
+    if( defined $options{ stdin } || defined $options{ stdin_fh }) {
         $mode = '|-';
     };
 
@@ -449,8 +466,9 @@ sub run {
         CORE::open( my $fh_err, '>', File::Spec->devnull )
             or warn "Couldn't redirect child STDERR";
         my $errh = fileno $fh_err;
+        my $fh_in = $options{ stdin_fh };
         # We accumulate zombie PIDs here, ah well.
-        my $pid = open3( my $fh_in, my $fh_out, '>&' . $errh, @$cmd)
+        my $pid = open3( $fh_in, my $fh_out, '>&' . $errh, @$cmd)
             or croak "Couldn't launch [$mode @$cmd]: $!/$?";
         if( $mode eq '|-' ) {
             $fh = $fh_in;
@@ -467,6 +485,10 @@ sub run {
     if( $options{ stdin }) {
         print {$fh} $options{ stdin };
         close $fh;
+
+    } elsif( $options{ stdin_fh } ) {
+        close $fh;
+
     } elsif( $options{ skip }) {
         for( 1..$options{ skip }) {
             # Read that many lines
@@ -502,9 +524,10 @@ sub wait {
 
 Adds a scalar as an archive member.
 
-Unfortunately, 7zip doesn't reliably read archive members from STDIN,
-so the scalar will be written to a tempfile, added to the archive and then
-renamed in the archive.
+Unfortunately, 7zip only reads archive members from STDIN
+for  xz, lzma, tar, gzip and bzip2 archives.
+In the other cases, the scalar will be written to a tempfile, added to the
+archive and then renamed in the archive.
 
 This requires 7zip version 9.30+
 
@@ -513,42 +536,50 @@ This requires 7zip version 9.30+
 sub add_scalar {
     my( $self, $name, $scalar )= @_;
     
-    # 7zip doesn't really support reading archive members from STDIN :-(
-    my($fh, $tempname) = tempfile;
-    binmode $fh, ':raw';
-    print {$fh} $scalar;
-    close $fh;
+    if( $sevenzip_stdin_support{ $self->{type} } ) {
+        my $cmd = $self->get_command(
+            command => 'a',
+            archivename => $self->archive_or_temp,
+            members => ["-si$name"],
+        );
+        my $fh = $self->run( $cmd,
+            binmode => ':raw',
+            stdin   => $scalar,
+            verbose => 1,
+        );
+
+    } else {
     
-    # Only supports 7z archive type?!
-    # 7zip will magically append .7z to the filename :-(
-    my $cmd = $self->get_command(
-        command => 'a',
-        archivename => $self->archive_or_temp,
-        members => [$tempname],
-        #options =>  ],
-    );
-    $fh = $self->run( $cmd );
-    $self->wait($fh);
-    
-    unlink $tempname
-        or warn "Couldn't unlink '$tempname': $!";
-    
-    # Hopefully your version of 7zip can rename members (9.30+):
-    $cmd = $self->get_command(
-        command => 'rn',
-        archivename => $self->archive_or_temp,
-        members => [basename($tempname), $name],
-        #options =>  ],
-    );
-    $fh = $self->run( $cmd );
-    $self->wait($fh);
-    
-    # Once 7zip supports reading from stdin, this will work again:
-    #my $fh = $self->run( $cmd,
-    #    binmode => ':raw',
-    #    stdin => $scalar,
-    #    verbose => 1,
-    #);
+        # 7zip doesn't really support reading archive members from STDIN :-(
+        my($fh, $tempname) = tempfile;
+        binmode $fh, ':raw';
+        print {$fh} $scalar;
+        close $fh;
+        
+        # Only supports 7z archive type?!
+        # 7zip will magically append .7z to the filename :-(
+        my $cmd = $self->get_command(
+            command => 'a',
+            archivename => $self->archive_or_temp,
+            members => [$tempname],
+            #options =>  ],
+        );
+        $fh = $self->run( $cmd );
+        $self->wait($fh);
+        
+        unlink $tempname
+            or warn "Couldn't unlink '$tempname': $!";
+        
+        # Hopefully your version of 7zip can rename members (9.30+):
+        $cmd = $self->get_command(
+            command => 'rn',
+            archivename => $self->archive_or_temp,
+            members => [basename($tempname), $name],
+            #options =>  ],
+        );
+        $fh = $self->run( $cmd );
+        $self->wait($fh);
+    };
 };
 
 =head2 C<< $ar->add_directory >>
@@ -731,6 +762,10 @@ files.
 L<File::Unpack> - also supports unpacking from 7z archives
 
 L<Compress::unLZMA> - uncompressor for the LZMA compression method used by 7z
+
+L<Archive::Libarchive::Any>
+
+L<Archive::Any>
 
 =head1 REPOSITORY
 
