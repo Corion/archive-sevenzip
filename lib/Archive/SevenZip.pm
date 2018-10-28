@@ -37,7 +37,7 @@ use vars qw(
     %sevenzip_stdin_support
     %class_defaults
     $VERSION @EXPORT_OK %EXPORT_TAGS);
-$VERSION= '0.06';
+$VERSION= '0.07';
 
 # Archive::Zip API
 # Error codes
