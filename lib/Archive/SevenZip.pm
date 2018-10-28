@@ -468,6 +468,7 @@ sub run {
         my $errh = fileno $fh_err;
         my $fh_in = $options{ stdin_fh };
         # We accumulate zombie PIDs here, ah well.
+        $SIG{'CHLD'} = 'IGNORE';
         my $pid = open3( $fh_in, my $fh_out, '>&' . $errh, @$cmd)
             or croak "Couldn't launch [$mode @$cmd]: $!/$?";
         if( $mode eq '|-' ) {
@@ -516,6 +517,7 @@ sub wait {
     while( <$fh>) {
         warn $_ if ($options{ verbose } || $self->{verbose})
     };
+    wait; # reap that child
 }
 
 =head2 C<< $ar->add_scalar >>
