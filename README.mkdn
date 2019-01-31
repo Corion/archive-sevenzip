@@ -2,12 +2,6 @@
 [![Travis Build Status](https://travis-ci.org/Corion/Archive-SevenZip.svg?branch=master)](https://travis-ci.org/Corion/Archive-SevenZip)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/Corion/Archive-SevenZip?branch=master&svg=true)](https://ci.appveyor.com/project/Corion/Archive-SevenZip)
 
-CONTRIBUTING
-
-See lib/WWW/Mechanize/Chrome/Contributing.pod
-
-[Google Keep Extraction](https://github.com/Corion/WWW-Mechanize-Chrome/raw/master/demo/keep-export-demo.mp4)
-
 # NAME
 
 Archive::SevenZip - Read/write 7z , zip , ISO9960 and other archives

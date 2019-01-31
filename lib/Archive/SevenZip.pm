@@ -105,7 +105,8 @@ sub find_7z_executable {
     my($class) = @_;
     my $old_default = $class_defaults{ '7zip' };
     my $envsep = $^O =~ /MSWin/ ? ';' : ':';
-    if( $ENV{PERL_ARCHIVE_SEVENZIP_BIN})
+    my $found;
+    if( $ENV{PERL_ARCHIVE_SEVENZIP_BIN}) {
         $class_defaults{'7zip'} = $ENV{PERL_ARCHIVE_SEVENZIP_BIN};
         $found = $class->version;
     } else {
@@ -114,7 +115,7 @@ sub find_7z_executable {
         if( $^O =~ /MSWin/i ) {
             push @search, map { "$_\\7-Zip" } grep {defined} ($ENV{'ProgramFiles'}, $ENV{'ProgramFiles(x86)'});
         };
-        my $found = $class->version;
+        $found = $class->version;
 
         while( ! defined $found and @search) {
             my $dir = shift @search;
