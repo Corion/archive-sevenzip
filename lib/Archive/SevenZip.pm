@@ -87,10 +87,17 @@ our %class_defaults = (
 
 =head2 C<< Archive::SevenZip->find_7z_executable >>
 
+    my $version = Archive::SevenZip->find_7z_executable()
+        or die "No 7z found.";
+    print "Found 7z version '$version'";
+
 Finds the 7z executable in the path or in C<< $ENV{ProgramFiles} >>
 or C<< $ENV{ProgramFiles(x86)} >>. This is called
 when a C<< Archive::SevenZip >> instance is created with the C<find>
 parameter set to 1.
+
+If C<< $ENV{PERL_ARCHIVE_SEVENZIP_BIN} >> is set, this value will be used as
+the 7z executable and the path will not be searched.
 
 =cut
 
@@ -98,21 +105,27 @@ sub find_7z_executable {
     my($class) = @_;
     my $old_default = $class_defaults{ '7zip' };
     my $envsep = $^O =~ /MSWin/ ? ';' : ':';
-    my @search = split /$envsep/, $ENV{PATH};
-    if( $^O =~ /MSWin/i ) {
-        push @search, map { "$_\\7-Zip" } grep {defined} ($ENV{'ProgramFiles'}, $ENV{'ProgramFiles(x86)'});
-    };
-    my $found = $class->version;
-
-    while( ! defined $found and @search) {
-        my $dir = shift @search;
-        if ($^O eq 'MSWin32') {
-            next unless -e file("$dir", "7z.exe" );
-        }
-        $class_defaults{'7zip'} = "" . file("$dir", "7z" );
+    if( $ENV{PERL_ARCHIVE_SEVENZIP_BIN})
+        $class_defaults{'7zip'} = $ENV{PERL_ARCHIVE_SEVENZIP_BIN};
         $found = $class->version;
+    } else {
+        my @search;
+        push @search, split /$envsep/, $ENV{PATH};
+        if( $^O =~ /MSWin/i ) {
+            push @search, map { "$_\\7-Zip" } grep {defined} ($ENV{'ProgramFiles'}, $ENV{'ProgramFiles(x86)'});
+        };
+        my $found = $class->version;
+
+        while( ! defined $found and @search) {
+            my $dir = shift @search;
+            if ($^O eq 'MSWin32') {
+                next unless -e file("$dir", "7z.exe" );
+            }
+            $class_defaults{'7zip'} = "" . file("$dir", "7z" );
+            $found = $class->version;
+        };
     };
-    
+
     if( ! $found) {
         $class_defaults{ '7zip' } = $old_default;
     };
