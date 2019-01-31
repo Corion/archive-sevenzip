@@ -6,8 +6,7 @@ use File::Basename qw(dirname basename);
 use File::Copy;
 use Archive::SevenZip 'AZ_OK';
 
-use vars qw($VERSION);
-$VERSION= '0.07';
+our $VERSION= '0.07';
 
 sub new {
     my( $class, %options )= @_;
