@@ -215,7 +215,7 @@ such guarantee.
 =head1 REPOSITORY
 
 The public repository of this module is 
-L<http://github.com/Corion/archive-sevenzip>.
+L<https://github.com/Corion/archive-sevenzip>.
 
 =head1 SUPPORT
 
@@ -234,7 +234,7 @@ Max Maischein C<corion@cpan.org>
 
 =head1 COPYRIGHT (c)
 
-Copyright 2015-2016 by Max Maischein C<corion@cpan.org>.
+Copyright 2015-2019 by Max Maischein C<corion@cpan.org>.
 
 =head1 LICENSE
 
