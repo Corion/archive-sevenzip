@@ -1,3 +1,8 @@
+0.09 2019-07-28
+    * Don't add quotes to our parameters to system() unless the OS
+      really needs them.
+      This should fix invocations with whitespace on unixish OSes.
+
 0.08 2018-10-28
     * Introduce PERL_ARCHIVE_SEVENZIP_BIN environment variable
 
