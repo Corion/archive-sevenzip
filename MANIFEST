@@ -12,6 +12,7 @@ META.json
 META.yml
 README
 README.mkdn
+sysdeps.yml
 t/01-identity.t
 t/02-add-scalar.t
 t/02_main.t
