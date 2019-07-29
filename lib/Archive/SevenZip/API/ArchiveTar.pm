@@ -3,7 +3,7 @@ use strict;
 use Archive::SevenZip;
 use Carp 'croak';
 
-our $VERSION= '0.09';
+our $VERSION= '0.10';
 
 =head1 NAME
 
