@@ -83,7 +83,7 @@ our %class_defaults = (
     fs_encoding => 'UTF-8',
     default_options => [ "-y", "-bd" ],
     type => 'zip',
-    system_needs_quotes => ($^O =~ /MSWin/i)
+    system_needs_quotes => scalar ($^O =~ /MSWin/i),
 );
 
 =head2 C<< Archive::SevenZip->find_7z_executable >>
