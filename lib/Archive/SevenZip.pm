@@ -109,7 +109,7 @@ sub find_7z_executable {
     my $found;
     if( $ENV{PERL_ARCHIVE_SEVENZIP_BIN}) {
         $class_defaults{'7zip'} = $ENV{PERL_ARCHIVE_SEVENZIP_BIN};
-        $found = $class->version;
+        $found = $class_defaults{'7zip'};
     } else {
         my @search;
         push @search, split /$envsep/, $ENV{PATH};
@@ -187,15 +187,15 @@ sub version {
     my $fh = eval { $self->run($cmd, binmode => ':raw') };
 
     if( ! $@ ) {
-    local $/ = "\n";
-    my @output = <$fh>;
-    if( @output >= 3) {
-        $output[1] =~ /^7-Zip\s+.*?(\d+\.\d+)\s+(?:\s*:\s*)?Copyright/
-            or return undef;
-        return $1;
-    } else {
-        return undef
-    }
+        local $/ = "\n";
+        my @output = <$fh>;
+        if( @output >= 3) {
+            $output[1] =~ /^7-Zip\s+.*?(\d+\.\d+)\s+(?:\s*:\s*)?Copyright/
+                or return undef;
+            return $1;
+        } else {
+            return undef
+        }
     }
 }
 
