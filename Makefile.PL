@@ -188,9 +188,9 @@ sub pod_section {
         shift @section if $remove_heading;
 
         pop @section
-            while $section[-1] =~ /^\s*$/;
+            while @section and $section[-1] =~ /^\s*$/;
         shift @section
-            while $section[0] =~ /^\s*$/;
+            while @section and $section[0] =~ /^\s*$/;
     };
 
     @section = map { $_ =~ s!^=\w+\s+!!; $_ } @section;
