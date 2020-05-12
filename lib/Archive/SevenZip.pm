@@ -376,7 +376,11 @@ sub extractMember {
         warn $_ if $options{ verbose };
     };
     if( basename $memberOrName ne $target_name ) {
-        rename "$target_dir/" . basename($memberOrName) => $extractedName
+        my $org = basename($memberOrName);
+        if( $^O !~ /mswin/i) {
+            $org = encode('UTF-8', $org);
+        };
+        rename "$target_dir/" . $org => $extractedName
             or croak "Couldn't move '$memberOrName' to '$extractedName': $!";
     };
 
