@@ -28,9 +28,10 @@ addons:
   apt:
     update: true
     packages:
-      - p7zip
+      - p7zip-full
 
 before_install:
+  - "if [[ \"$TRAVIS_OS_NAME\" != \"windows\" ]]; then 7z ; fi"
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
   - source ~/travis-perl-helpers/init
   - build-perl

@@ -192,6 +192,7 @@ sub version {
         if( @output >= 3) {
             # 7-Zip 19.00 (x64) : Copyright (c) 1999-2018 Igor Pavlov : 2019-02-21
             # 7-Zip [64] 16.02 : Copyright (c) 1999-2016 Igor Pavlov : 2016-05-21
+            # 7-Zip [64] 9.20  Copyright (c) 1999-2010 Igor Pavlov  2010-11-18
             $output[1] =~ /^7-Zip\s+.*?\b(\d+\.\d+)\s+(?:\(x64\))?(?:\s*:\s*)?Copyright/
                 or return undef;
             return $1;
