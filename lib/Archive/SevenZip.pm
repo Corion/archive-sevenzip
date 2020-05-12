@@ -190,7 +190,9 @@ sub version {
         local $/ = "\n";
         my @output = <$fh>;
         if( @output >= 3) {
-            $output[1] =~ /^7-Zip\s+.*?(\d+\.\d+)\s+(?:\s*:\s*)?Copyright/
+            # 7-Zip 19.00 (x64) : Copyright (c) 1999-2018 Igor Pavlov : 2019-02-21
+            # 7-Zip [64] 16.02 : Copyright (c) 1999-2016 Igor Pavlov : 2016-05-21
+            $output[1] =~ /^7-Zip\s+.*?\b(\d+\.\d+)\s+(?:\(x64\))?(?:\s*:\s*)?Copyright/
                 or return undef;
             return $1;
         } else {
