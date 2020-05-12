@@ -205,7 +205,7 @@ sub version {
 
   my @entries = $ar->open;
   for my $entry (@entries) {
-      print $entry->name, "\n";
+      print $entry->fileName, "\n";
   };
 
 Lists the entries in the archive. A fresh archive which does not
