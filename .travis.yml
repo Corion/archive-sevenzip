@@ -24,6 +24,12 @@ matrix:
 
 sudo: false
 
+addons:
+  apt:
+    update: true
+    packages:
+      - p7zip
+
 before_install:
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
   - source ~/travis-perl-helpers/init
