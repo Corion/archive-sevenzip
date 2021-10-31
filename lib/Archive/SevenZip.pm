@@ -288,16 +288,21 @@ sub list {
 
     # Split entries
     my %entry_info;
-    while( @output ) {
-        my $line = shift @output;
+    for my $line (@output ) {
         if( $line =~ /^([\w ]+) =(?: (.*?)|)\s*$/ ) {
             $entry_info{ $1 } = $2;
         } elsif($line =~ /^\s*$/) {
-            push @members, Archive::SevenZip::Entry->new(
-                %entry_info,
-                _Container => $self,
-            );
+            if( $entry_info{ 'Path' }) {
+                push @members, Archive::SevenZip::Entry->new(
+                    %entry_info,
+                    _Container => $self,
+                );
+            };
             %entry_info = ();
+        } elsif( $line =~ /^Warnings: \d+\s+/) {
+            # ignore
+            # use Data::Dumper; warn Dumper \@output;
+            # croak "Unknown file entry [$line]";
         } else {
             croak "Unknown file entry [$line]";
         };
