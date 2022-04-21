@@ -16,7 +16,8 @@ use File::Spec;
 
 use Test::More;
 
-use vars qw($testZipDoesntWork $status);
+our $testZipDoesntWork;
+our $status;
 
 BEGIN {
 if( ! eval {
@@ -356,7 +357,7 @@ SKIP: {
 # approach of not setting up a common baseline for each test
 # and the insistence on that the implementation maintains the
 # order on archive members
-# 
+#
 #$zip->addMember($member);
 #@members = $zip->members();
 
