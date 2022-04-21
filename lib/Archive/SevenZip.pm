@@ -109,7 +109,7 @@ sub find_7z_executable {
     my $found;
     if( $ENV{PERL_ARCHIVE_SEVENZIP_BIN}) {
         $class_defaults{'7zip'} = $ENV{PERL_ARCHIVE_SEVENZIP_BIN};
-        $found = $class_defaults{'7zip'};
+        $found = $class->version || "7zip not found via environment '($ENV{PERL_ARCHIVE_SEVENZIP_BIN})'";
     } else {
         my @search;
         push @search, split /$envsep/, $ENV{PATH};
