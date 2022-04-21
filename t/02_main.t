@@ -19,12 +19,15 @@ use Test::More;
 our $testZipDoesntWork;
 our $status;
 
+use lib '.';
 BEGIN {
 if( ! eval {
+    push @INC, '.';
     require t::common;
     t::common->import;
     1
 }) {
+    diag $@;
     plan skip_all => "Archive::Zip not installed, skipping compatibility tests", 83;
     exit;
    } else {
