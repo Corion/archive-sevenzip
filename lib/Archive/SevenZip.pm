@@ -768,7 +768,7 @@ use strict;
 
 =head1 NAME
 
-Path::Class::Archive - treat archives as directories
+Path::Class::Archive::Handle - treat archives as directories
 
 =cut
 
