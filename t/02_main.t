@@ -96,7 +96,7 @@ my $numberOfMembers = $zip->numberOfMembers();
 is($numberOfMembers, 0, '->numberofMembers is 0');
 
 # writeToFileNamed	# Archive::Zip::Archive
-my $status = $zip->writeToFileNamed(OUTPUTZIP());
+   $status = $zip->writeToFileNamed(OUTPUTZIP());
 is($status, AZ_OK, '->writeToFileNames ok');
 
 my $zipout;
