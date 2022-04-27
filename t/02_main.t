@@ -83,6 +83,8 @@ if( $version <= 9.20) {
 # new	# Archive::Zip
 # new	# Archive::Zip::Archive
 my $zip = Archive::SevenZip->archiveZipApi();
+$zip->{sevenZip}->{verbose} = $ENV{TEST_ARCHIVE_7Z_VERBOSE};
+
 isa_ok($zip, 'Archive::SevenZip::API::ArchiveZip');
 
 # members	# Archive::Zip::Archive
