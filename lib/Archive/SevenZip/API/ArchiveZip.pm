@@ -179,13 +179,14 @@ sub replaceMember {
 
 
 sub addFile {
-    my( $self, $name, $target, $compressionLevel, %options ) = @_;
+    my( $self, $name, $target, $compressionLevel )
+        = _params(\@_, qw(filename zipName compressionLevel ));
     if( ref $name and $name->can('fileName')) {
         $name = $name->fileName;
     };
     $target ||= $name;
-    $self->sevenZip->add( items => [[ $name, $target ]], %options );
-    return $self->memberNamed($target, %options);
+    $self->sevenZip->add( items => [[ $name, $target ]]);
+    return $self->memberNamed($target);
 }
 
 sub addMember {
