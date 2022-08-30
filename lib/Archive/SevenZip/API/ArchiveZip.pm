@@ -190,13 +190,14 @@ sub addFile {
 }
 
 sub addMember {
-    my( $self, $name, $target, %options ) = @_;
-    if( ref $name and $name->can('fileName')) {
-        $name = $name->fileName;
-    };
-    $target ||= $name;
-    $self->sevenZip->add( items => [[ $name, $target ]], %options );
-    return $self->memberNamed($target, %options);
+    #my( $self, $name, $target, %options ) = @_;
+    my( $self, $member ) = _param( \@_, qw(member));
+    my $target = $member->fileName;
+    my $fh = $member->open( binmode => ':raw' );
+    local $/;
+    my $content = <$fh>;
+    $self->sevenZip->add_scalar( $target => $content );
+    return $self->memberNamed($target );
 }
 { no warnings 'once';
 *add = \&addMember;
