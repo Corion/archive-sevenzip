@@ -656,6 +656,17 @@ sub add_directory {
     #);
 };
 
+=head2 C<< $ar->add >>
+
+    $ar->add( items => ["real_etc" => "name_in_archive" ] );
+
+Adds elements to an archive
+
+This currently ignores the directory date and time if the directory
+exists
+
+=cut
+
 sub add {
     my( $self, %options )= @_;
 
