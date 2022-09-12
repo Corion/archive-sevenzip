@@ -383,11 +383,15 @@ sub extractMember {
     };
     if( basename $memberOrName ne $target_name ) {
         my $org = basename($memberOrName);
-        if( $^O !~ /mswin/i) {
-            $org = encode('UTF-8', $org);
-        };
-        rename "$target_dir/" . $org => $extractedName
-            or croak "Couldn't move '$memberOrName' to '$extractedName': $!";
+
+        # Maybe, _maybe_, we need to look for the file using UTF-8
+        # encoded filenames, but also, maybe not. So let's try both...
+        my $src = "$target_dir/$org";
+        if( ! -f $src ) {
+            $src = "$target_dir/" . encode('UTF-8', $org);
+        }
+        rename $src => $extractedName
+            or croak "Couldn't move '$src' ('$memberOrName') to '$extractedName': $!";
     };
 
     return AZ_OK;
