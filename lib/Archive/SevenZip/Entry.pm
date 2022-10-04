@@ -1,6 +1,7 @@
 package Archive::SevenZip::Entry;
 use strict;
 
+use Archive::Zip::Member;
 use Time::Piece; # for strptime
 use File::Basename ();
 use Path::Class ();
