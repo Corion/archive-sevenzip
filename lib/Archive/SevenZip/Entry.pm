@@ -44,8 +44,12 @@ sub components {
     $cp->components()
 }
 
+sub lastModTime {
+    Time::Piece->strptime('%Y-%m-%d %H:%M:%S', $_[0]->{Modified});
+}
+
 sub lastModFileDateTime {
-    0
+    Archive::Zip::Member::_unixToDosTime($_[0]->lastModTime())
 }
 
 sub crc32 {
