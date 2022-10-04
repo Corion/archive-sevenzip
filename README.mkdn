@@ -1,0 +1,197 @@
+
+[![Travis Build Status](https://travis-ci.org/Corion/Archive-SevenZip.svg?branch=master)](https://travis-ci.org/Corion/Archive-SevenZip)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/Corion/Archive-SevenZip?branch=master&svg=true)](https://ci.appveyor.com/project/Corion/Archive-SevenZip)
+
+# NAME
+
+Archive::SevenZip - Read/write 7z , zip , ISO9960 and other archives
+
+# SYNOPSIS
+
+    my $ar = Archive::SevenZip->new(
+        find => 1,
+        archivename => $archivename,
+        verbose => $verbose,
+    );
+
+    for my $entry ( $ar->list ) {
+        my $target = join "/", "$target_dir", $entry->basename;
+        $ar->extractMember( $entry->fileName, $target );
+    };
+
+# METHODS
+
+## `Archive::SevenZip->find_7z_executable`
+
+    my $version = Archive::SevenZip->find_7z_executable()
+        or die "No 7z found.";
+    print "Found 7z version '$version'";
+
+Finds the 7z executable in the path or in `$ENV{ProgramFiles}`
+or `$ENV{ProgramFiles(x86)}`. This is called
+when a `Archive::SevenZip` instance is created with the `find`
+parameter set to 1.
+
+If `$ENV{PERL_ARCHIVE_SEVENZIP_BIN}` is set, this value will be used as
+the 7z executable and the path will not be searched.
+
+## `Archive::SevenZip->new`
+
+    my $ar = Archive::SevenZip->new( $archivename );
+
+    my $ar = Archive::SevenZip->new(
+        archivename => $archivename,
+        find => 1,
+    );
+
+Creates a new class instance.
+
+`find` - will try to find the executable using `->find_7z_executable`
+
+## `$ar->open`
+
+    my @entries = $ar->open;
+    for my $entry (@entries) {
+        print $entry->fileName, "\n";
+    };
+
+Lists the entries in the archive. A fresh archive which does not
+exist on disk yet has no entries. The returned entries
+are [Archive::SevenZip::Entry](https://metacpan.org/pod/Archive%3A%3ASevenZip%3A%3AEntry) instances.
+
+This method will one day move to the Path::Class-compatibility
+API.
+
+## `$ar->memberNamed`
+
+    my $entry = $ar->memberNamed('hello_world.txt');
+    print $entry->fileName, "\n";
+
+The path separator must be a forward slash ("/")
+
+This method will one day move to the Archive::Zip-compatibility
+API.
+
+## `$ar->openMemberFH`
+
+    my $fh = $ar->openMemberFH('test.txt');
+    while( <$fh> ) {
+        print "test.txt: $_";
+    };
+
+Reads the uncompressed content of the member from the archive.
+
+This method will one day move to the Archive::Zip-compatibility
+API.
+
+## `$ar->extractMember`
+
+    $ar->extractMember('test.txt' => 'extracted_test.txt');
+
+Extracts the uncompressed content of the member from the archive.
+
+This method will one day move to the Archive::Zip-compatibility
+API.
+
+## `$ar->removeMember`
+
+    $ar->removeMember('test.txt');
+
+Removes the member from the archive.
+
+## `$ar->add_scalar`
+
+    $ar->add_scalar( "Some name.txt", "This is the content" );
+
+Adds a scalar as an archive member.
+
+Unfortunately, 7zip only reads archive members from STDIN
+for  xz, lzma, tar, gzip and bzip2 archives.
+In the other cases, the scalar will be written to a tempfile, added to the
+archive and then renamed in the archive.
+
+This requires 7zip version 9.30+
+
+## `$ar->add_directory`
+
+    $ar->add_directory( "real_etc", "etc" );
+
+Adds an empty directory
+
+This currently ignores the directory date and time if the directory
+exists
+
+## `->archiveZipApi`
+
+    my $ar = Archive::SevenZip->archiveZipApi(
+        find => 1,
+        archivename => $archivename,
+        verbose => $verbose,
+    );
+    print "$_\n" for $ar->list_files;
+
+This is an alternative constructor that gives you an API
+that is somewhat compatible with the API of [Archive::Zip](https://metacpan.org/pod/Archive%3A%3AZip).
+See also [Archive::SevenZip::API::ArchiveZip](https://metacpan.org/pod/Archive%3A%3ASevenZip%3A%3AAPI%3A%3AArchiveZip).
+
+## `->archiveTarApi`
+
+    my $ar = Archive::SevenZip->archiveTarApi(
+        find => 1,
+        archivename => $archivename,
+        verbose => $verbose,
+    );
+    print "$_\n" for $ar->list_files;
+
+This is an alternative constructor that gives you an API
+that is somewhat compatible with the API of [Archive::Tar](https://metacpan.org/pod/Archive%3A%3ATar).
+See also [Archive::SevenZip::API::ArchiveTar](https://metacpan.org/pod/Archive%3A%3ASevenZip%3A%3AAPI%3A%3AArchiveTar).
+
+# NAME
+
+Path::Class::Archive - treat archives as directories
+
+# CAUTION
+
+This module tries to mimic the API of [Archive::Zip](https://metacpan.org/pod/Archive%3A%3AZip) in some cases
+and in other cases, the API of [Path::Class](https://metacpan.org/pod/Path%3A%3AClass). It is also a very rough
+draft that just happens to be doing what I need, mostly extracting
+files.
+
+# SEE ALSO
+
+[File::Unpack](https://metacpan.org/pod/File%3A%3AUnpack) - also supports unpacking from 7z archives
+
+[Compress::unLZMA](https://metacpan.org/pod/Compress%3A%3AunLZMA) - uncompressor for the LZMA compression method used by 7z
+
+[Archive::Libarchive::Any](https://metacpan.org/pod/Archive%3A%3ALibarchive%3A%3AAny)
+
+[Archive::Any](https://metacpan.org/pod/Archive%3A%3AAny)
+
+# REPOSITORY
+
+The public repository of this module is
+[https://github.com/Corion/archive-sevenzip](https://github.com/Corion/archive-sevenzip).
+
+# SUPPORT
+
+The public support forum of this module is
+[https://perlmonks.org/](https://perlmonks.org/).
+
+# BUG TRACKER
+
+Please report bugs in this module via the RT CPAN bug queue at
+[https://rt.cpan.org/Public/Dist/Display.html?Name=Archive-SevenZip](https://rt.cpan.org/Public/Dist/Display.html?Name=Archive-SevenZip)
+or via mail to [archive-sevenzip-Bugs@rt.cpan.org](https://metacpan.org/pod/archive-sevenzip-Bugs%40rt.cpan.org).
+
+# AUTHOR
+
+Max Maischein `corion@cpan.org`
+
+# COPYRIGHT (c)
+
+Copyright 2015-2019 by Max Maischein `corion@cpan.org`.
+
+# LICENSE
+
+This module is released under the same terms as Perl itself.

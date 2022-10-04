@@ -16,14 +16,18 @@ use File::Spec;
 
 use Test::More;
 
-use vars qw($testZipDoesntWork $status);
+our $testZipDoesntWork;
+our $status;
 
+use lib '.';
 BEGIN {
 if( ! eval {
+    push @INC, '.';
     require t::common;
     t::common->import;
     1
 }) {
+    diag $@;
     plan skip_all => "Archive::Zip not installed, skipping compatibility tests", 83;
     exit;
    } else {
@@ -79,6 +83,8 @@ if( $version <= 9.20) {
 # new	# Archive::Zip
 # new	# Archive::Zip::Archive
 my $zip = Archive::SevenZip->archiveZipApi();
+$zip->{sevenZip}->{verbose} = $ENV{TEST_ARCHIVE_7Z_VERBOSE};
+
 isa_ok($zip, 'Archive::SevenZip::API::ArchiveZip');
 
 # members	# Archive::Zip::Archive
@@ -90,7 +96,7 @@ my $numberOfMembers = $zip->numberOfMembers();
 is($numberOfMembers, 0, '->numberofMembers is 0');
 
 # writeToFileNamed	# Archive::Zip::Archive
-my $status = $zip->writeToFileNamed(OUTPUTZIP());
+   $status = $zip->writeToFileNamed(OUTPUTZIP());
 is($status, AZ_OK, '->writeToFileNames ok');
 
 my $zipout;
@@ -356,7 +362,7 @@ SKIP: {
 # approach of not setting up a common baseline for each test
 # and the insistence on that the implementation maintains the
 # order on archive members
-# 
+#
 #$zip->addMember($member);
 #@members = $zip->members();
 

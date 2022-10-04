@@ -1,11 +1,11 @@
 #!perl -w
 use strict;
-use Archive::SevenZip;
+use Archive::7zip;
 use File::Basename;
 use Test::More tests => 2;
 use File::Temp 'tempfile';
 
-my $version = Archive::SevenZip->find_7z_executable();
+my $version = Archive::7zip->find_7z_executable();
 if( ! $version ) {
     SKIP: { skip "7z binary not found (not installed?)", 2; }
     exit;
@@ -14,8 +14,9 @@ diag "7-zip version $version";
 
 my $base = dirname($0) . '/data';
 my $archivename = "$base/def.zip";
-my $ar = Archive::SevenZip->new(
+my $ar = Archive::7zip->new(
     archivename => $archivename,
+    verbose => $ENV{TEST_ARCHIVE_7Z_VERBOSE},
 );
 
 # Check that extraction to scalar and extraction to file

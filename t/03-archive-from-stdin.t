@@ -13,15 +13,20 @@ if( ! $version ) {
 diag "7-zip version $version";
 if( $version <= 9.20) {
   SKIP: {
-    skip "7z version $version does not support renaming", 2;
+    skip "7z version $version does not support reading archives from stdin", 2;
   }
     exit
 };
 
 my $base = dirname($0) . '/data';
+
+my $archive = "$base/perl.zip";
+open my $fh, '<', $archive
+    or die "Couldn't open '$archive': $!";
+binmode $fh;
+
 my $ar = Archive::SevenZip->new(
-    #archivename => $archivename,
-    #type => '7z',
+    fh => $fh,
 );
 
 #(my $tempname, undef) = tempfile;
