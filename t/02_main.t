@@ -130,14 +130,16 @@ my $member = $zip->addDirectory($memberName);
 ok(defined($member));
 is($member->fileName(), $memberName);
 
+note "Here";
 # On some (Windows systems) the modification time is
 # corrupted. Save this to check late.
 my $dir_time = $member->lastModFileDateTime();
+note "Time is $dir_time";
 
 # members	# Archive::Zip::Archive
 @members = $zip->members();
-is(scalar(@members), 1);
-is($members[0]->fileName,      $member->fileName);
+is(scalar(@members), 1, "We have one member");
+is($members[0]->fileName,      $member->fileName, "... with the correct filename");
 
 # numberOfMembers	# Archive::Zip::Archive
 $numberOfMembers = $zip->numberOfMembers();
