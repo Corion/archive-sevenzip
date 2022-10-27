@@ -3,7 +3,7 @@ Archive::SevenZip - Read/write 7z , zip , ISO9960 and other archives
 SYNOPSIS
 NAME
 
-Path::Class::Archive - treat archives as directories
+Path::Class::Archive::Handle - treat archives as directories
 
 
 
