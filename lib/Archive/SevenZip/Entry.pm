@@ -6,7 +6,7 @@ use Time::Piece; # for strptime
 use File::Basename ();
 use Path::Class ();
 
-our $VERSION= '0.13';
+our $VERSION= '0.14';
 
 sub new {
     my( $class, %options) = @_;

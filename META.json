@@ -58,7 +58,7 @@
          "web" : "https://github.com/Corion/Archive-SevenZip"
       }
    },
-   "version" : "0.13",
-   "x_serialization_backend" : "JSON::PP version 4.04",
+   "version" : "0.14",
+   "x_serialization_backend" : "JSON::PP version 4.11",
    "x_static_install" : 1
 }

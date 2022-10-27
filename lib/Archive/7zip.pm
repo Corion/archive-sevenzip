@@ -3,7 +3,7 @@ use strict;
 
 use Archive::SevenZip;
 
-our $VERSION= '0.13';
+our $VERSION= '0.14';
 
 *Archive::7zip:: = \*Archive::SevenZip::;
 

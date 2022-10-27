@@ -1,4 +1,4 @@
-0.14 to be released
+0.14 2022-10-26
     * Archive::SevenZip::API::ArchiveZip->addFile now takes a third
       optional parameter $compressionLevel before the hash options. This
       mirrors the Archive::Zip API.
