@@ -45,7 +45,8 @@ sub components {
 }
 
 sub lastModTime {
-    Time::Piece->strptime($_[0]->{Modified}, '%Y-%m-%d %H:%M:%S')->epoch;
+    (my $dt = $_[0]->{Modified}) =~ s/\.\d+$//;
+    Time::Piece->strptime($dt, '%Y-%m-%d %H:%M:%S')->epoch;
 }
 
 sub lastModFileDateTime {
