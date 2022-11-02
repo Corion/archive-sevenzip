@@ -460,10 +460,6 @@ sub get_command {
         $_ = encode $options{ fs_encoding }, $_;
     };
 
-    # Now quote what needs to be quoted
-    for( @{ $options{ options }}, @{ $options{ members }}, $options{ archivename }, "$self->{ '7zip' }") {
-    };
-
     my $add_quote = $self->{system_needs_quotes};
     return [grep {defined $_}
         add_quotes($add_quote, $self->{ '7zip' }),
@@ -471,7 +467,7 @@ sub get_command {
         $options{ command },
         @charset,
         add_quotes($add_quote, @{ $options{ options }} ),
-        "--",
+        # "--",
         add_quotes($add_quote, $options{ archivename } ),
         add_quotes($add_quote, @{ $options{ members }} ),
     ];
