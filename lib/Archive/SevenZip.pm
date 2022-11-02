@@ -483,7 +483,7 @@ sub run {
 
     my $fh;
     warn "Opening [@$cmd]"
-        if $options{ verbose };
+        if $options{ verbose } || $self->{verbose};
 
     if( $self->{verbose} ) {
         CORE::open( $fh, $mode, @$cmd)
@@ -720,7 +720,6 @@ sub add {
         if( $options{ recursive }) {
             push @options, '-r';
         };
-
         my $cmd = $self->get_command(
             command => 'a',
             archivename => $self->archive_or_temp,
