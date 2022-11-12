@@ -190,9 +190,9 @@ sub version {
         local $/ = "\n";
         my @output = <$fh>;
         if( @output >= 3) {
-            # 7-Zip 19.00 (x64) : Copyright (c) 1999-2018 Igor Pavlov : 2019-02-21
-            # 7-Zip [64] 16.02 : Copyright (c) 1999-2016 Igor Pavlov : 2016-05-21
-            # 7-Zip [64] 9.20  Copyright (c) 1999-2010 Igor Pavlov  2010-11-18
+            # 7-Zip 19.00 (x64) : Copyright (c) 1999-2022 Igor Pavlov : 2019-02-21
+            # 7-Zip [64] 16.02 : Copyright (c) 1999-2022 Igor Pavlov : 2016-05-21
+            # 7-Zip [64] 9.20  Copyright (c) 1999-2022 Igor Pavlov  2010-11-18
             $output[1] =~ /^7-Zip\s+.*?\b(\d+\.\d+)\s+(?:\(x64\))?(?:\s*:\s*)?Copyright/
                 or return undef;
             return $1;
@@ -827,7 +827,7 @@ Max Maischein C<corion@cpan.org>
 
 =head1 COPYRIGHT (c)
 
-Copyright 2015-2019 by Max Maischein C<corion@cpan.org>.
+Copyright 2015-2022 by Max Maischein C<corion@cpan.org>.
 
 =head1 LICENSE
 
