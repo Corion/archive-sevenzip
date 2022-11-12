@@ -1,3 +1,5 @@
+package t::common;
+package main;
 use strict;
 
 # Shared defs for test programs
