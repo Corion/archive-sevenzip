@@ -45,6 +45,12 @@ sub _params {
     }
 }
 
+sub read {
+    my( $self, $filename ) = _params(\@_, qw(filename));
+    $self->sevenZip->{archivename} = $filename;
+    return AZ_OK;
+}
+
 sub writeToFileNamed {
     my( $self, $targetName ) = _params(\@_, qw(fileName));
     copy( $self->sevenZip->{archivename}, $targetName );
