@@ -1,5 +1,6 @@
 package Archive::SevenZip::Entry;
 use strict;
+use warnings;
 
 use Archive::Zip::Member;
 use Time::Piece; # for strptime
@@ -25,9 +26,8 @@ sub fileName {
 
     # Normalize to unixy path names
     $res =~ s!\\!/!g;
-
     # If we're a directory, append the slash:
-    if( $self->{Folder} eq '+') {
+    if( exists $self->{Folder} and $self->{Folder} eq '+') {
         $res .= '/';
     };
 

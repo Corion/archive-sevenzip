@@ -38,6 +38,7 @@ t/data/emptydefstr.zip
 t/data/emptystore.zip
 t/data/emptystorestr.zip
 t/data/fred
+t/data/fred.7z
 t/data/good_github11.zip
 t/data/jar.zip
 t/data/linux.zip
