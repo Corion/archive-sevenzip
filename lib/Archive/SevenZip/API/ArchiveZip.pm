@@ -53,7 +53,9 @@ sub read {
 
 sub writeToFileNamed {
     my( $self, $targetName ) = _params(\@_, qw(fileName));
-    copy( $self->sevenZip->{archivename}, $targetName );
+
+    my $source = $self->sevenZip->archive_or_temp;
+    copy( $source, $targetName );
     return AZ_OK;
 }
 
