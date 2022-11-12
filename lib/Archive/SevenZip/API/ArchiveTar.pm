@@ -1,5 +1,6 @@
 package Archive::SevenZip::API::ArchiveTar;
 use strict;
+use warnings;
 use Archive::SevenZip;
 use Carp 'croak';
 
@@ -78,7 +79,7 @@ sub extract_file {
 
 =head1 REPOSITORY
 
-The public repository of this module is 
+The public repository of this module is
 L<https://github.com/Corion/archive-sevenzip>.
 
 =head1 SUPPORT

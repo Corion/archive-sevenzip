@@ -1,5 +1,6 @@
 package Archive::SevenZip::API::ArchiveZip;
 use strict;
+use warnings;
 use Carp qw(croak);
 use Encode qw( decode encode );
 use File::Basename qw(dirname basename);
