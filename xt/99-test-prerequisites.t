@@ -71,7 +71,7 @@ my $scanner = Perl::PrereqScanner::Lite->new;
 for my $test_file (@tests) {
     my $implicit_test_prereqs = $scanner->scan_file($test_file)->as_string_hash;
     my %missing = %{ $implicit_test_prereqs };
-    #warn Dumper \%missing;
+    delete $missing{'Archive::'}; # Perl::PrereqScanner::Lite doesn't like Archive::7zip
 
     for my $p ( keys %missing ) {
         # remove core modules
