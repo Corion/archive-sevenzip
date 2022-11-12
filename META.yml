@@ -19,6 +19,7 @@ no_index:
     - t
     - inc
 requires:
+  Archive::Zip: '0'
   Archive::Zip::Member: '0'
   Encode: '0'
   Exporter: '5'
