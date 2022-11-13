@@ -43,7 +43,6 @@ for my $archivename ("$base/def.zip", "$base/fred.7z") {
     # Check that extraction to scalar and extraction to file
     # result in the same output
 
-
     my $originalname = "$base/fred";
     open my $fh, '<', $originalname
         or die "Couldn't read '$originalname': $!";
@@ -55,7 +54,7 @@ for my $archivename ("$base/def.zip", "$base/fred.7z") {
     {
         my @warnings;
         local $SIG{__WARN__} = sub { push @warnings, @_ };
-        diag [$ar->members]->[0]->fileName;
+        my $fn = [$ar->members]->[0]->fileName;
         if(! is_deeply \@warnings, [], "We have no warnings when accessing the ->fileName ($archivename)") {
             diag Dumper \@warnings;
         }
