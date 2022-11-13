@@ -48,7 +48,7 @@
       },
       "test" : {
          "requires" : {
-            "Test::More" : "0"
+            "Test::More" : "1.001002"
          }
       }
    },

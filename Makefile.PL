@@ -58,7 +58,7 @@ my %module = (
         'Archive::Zip::Member' => 0,
     },
     TEST_REQUIRES => {
-        'Test::More'   => 0,
+        'Test::More'   => '1.001002', # a random version to allow done_testing()
     },
 
 
