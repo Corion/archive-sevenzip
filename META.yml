@@ -3,6 +3,7 @@ abstract: 'Read/write 7z , zip , ISO9960 and other archives'
 author:
   - 'Max Maischein <corion@cpan.org>'
 build_requires:
+  Data::Dumper: '0'
   ExtUtils::MakeMaker: '0'
   Test::More: '1.001002'
 configure_requires:

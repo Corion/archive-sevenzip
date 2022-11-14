@@ -59,6 +59,7 @@ my %module = (
     },
     TEST_REQUIRES => {
         'Test::More'   => '1.001002', # a random version to allow done_testing()
+        'Data::Dumper' => 0, # it's core, but still, why not be explicit
     },
 
 
