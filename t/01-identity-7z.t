@@ -68,3 +68,5 @@ for my $archivename ("$base/def.zip", "$base/fred.7z") {
     my $disk   = slurp($fh);
     data_matches_ok( $disk, "Direct disk extraction ($archivename)", $original, $originalname );
 }
+
+done_testing(6);
