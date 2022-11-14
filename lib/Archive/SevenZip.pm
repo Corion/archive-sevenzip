@@ -32,7 +32,7 @@ Archive::SevenZip - Read/write 7z , zip , ISO9960 and other archives
 
 =cut
 
-our $VERSION= '0.17';
+our $VERSION= '0.18';
 
 # Archive::Zip API
 # Error codes
