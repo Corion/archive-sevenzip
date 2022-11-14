@@ -2,13 +2,16 @@
 use strict;
 use Archive::7zip;
 use File::Basename;
-use Test::More tests => 6;
+use Test::More;
 use File::Temp 'tempfile';
 use Data::Dumper;
 
+my $testcount = 6;
+plan tests => 6;
+
 my $version = Archive::7zip->find_7z_executable();
 if( ! $version ) {
-    SKIP: { skip "7z binary not found (not installed?)", 2; }
+    SKIP: { skip "7z binary not found (not installed?)", $testcount; }
     exit;
 };
 diag "7-zip version $version";
