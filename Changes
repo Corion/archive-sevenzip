@@ -1,3 +1,7 @@
+0.19 2022-11-19
+    * Actually rename files in the archive even if they a path
+      Reported by LanX, many thanks!
+
 0.18 2022-11-14
     * Fix test count in test suite
 
