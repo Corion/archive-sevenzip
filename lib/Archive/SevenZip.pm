@@ -695,10 +695,17 @@ sub add {
             );
             my $fh = $self->run( $cmd );
             $self->wait($fh, %options );
+
+            # The stored name may contain a path, but we
+            # use basename() here. Hopefully that's simply OK for everybody.
+            my $sourceName = file($name);
+            if( $sourceName->is_absolute ) {
+                $sourceName = $sourceName->basename;
+            };
             $cmd = $self->get_command(
                 command => 'rn',
                 archivename => $self->archive_or_temp,
-                members => [$name, $storedName],
+                members => [$sourceName, $storedName],
                 #options =>  ],
             );
             $fh = $self->run( $cmd );
