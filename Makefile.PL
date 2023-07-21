@@ -29,8 +29,10 @@ my %module = (
                 web => "https://github.com/Corion/$distlink",
                 url => "git://github.com/Corion/$distlink.git",
                 type => 'git',
-            }
-            bugtracker => "https://rt.cpan.org/Public/Dist/Display.html?Name=$distbase",
+            },
+            bugtracker  => {
+              web    => "https://github.com/Corion/$distbase/issues",
+            },
             license    => "https://dev.perl.org/licenses/",
         },
         dynamic_config   => 0, # we promise to keep META.* up-to-date
