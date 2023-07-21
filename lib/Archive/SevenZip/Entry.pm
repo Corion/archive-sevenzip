@@ -204,6 +204,8 @@ sub slurp {
 
 Extracts the data
 
+=back
+
 =cut
 
 # Archive::Zip API
