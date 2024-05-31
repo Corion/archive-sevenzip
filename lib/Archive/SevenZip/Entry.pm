@@ -7,7 +7,7 @@ use Time::Piece; # for strptime
 use File::Basename ();
 use Path::Class ();
 
-our $VERSION= '0.19';
+our $VERSION= '0.20';
 
 =head1 NAME
 
